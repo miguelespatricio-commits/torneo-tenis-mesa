@@ -173,38 +173,22 @@ tbody tr:hover td{background:var(--bg)}
   <div class="alert alert-info">&#x1F91D; Encuentro: P1 Singles + P2 Dobles + P3 Singles desempate si 1-1.</div>
   <div class="card">
     <h3>Crear equipo</h3>
-    <div class="card">
-  <h3>Crear equipo</h3>
-  <div class="form-row">
-    <div class="form-group"><label>Nombre del equipo *</label><input id="eq-nombre" type="text" placeholder="Club Atletico A"/></div>
-    <div class="form-group"><label>Categoria</label><select id="eq-cat"></select></div>
-    <div class="form-group" id="eq-pago-wrap" style="display:none;max-width:110px;">
-      <label>Inscripcion</label>
-      <div style="display:flex;align-items:center;gap:6px;height:36px;">
-        <input type="checkbox" id="eq-pago" style="width:16px;height:16px;cursor:pointer;"/>
-        <label for="eq-pago" style="font-size:13px;cursor:pointer;">Pago</label>
-      </div>
-    </div>
-  </div>
-  <div style="background:var(--bg);border-radius:var(--radius);padding:12px;border:1px solid var(--border);margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Jugadores (minimo 2)</div>
-    <div class="form-row" style="margin-bottom:6px;">
-      <div class="form-group"><label>Jugador 1 *</label><input id="eq-j1" type="text" placeholder="Nombre y apellido"/></div>
-      <div class="form-group"><label>Jugador 2 *</label><input id="eq-j2" type="text" placeholder="Nombre y apellido"/></div>
-    </div>
-    <div class="form-row" style="margin-bottom:6px;">
-      <div class="form-group"><label>Jugador 3</label><input id="eq-j3" type="text" placeholder="Opcional"/></div>
-      <div class="form-group"><label>Jugador 4</label><input id="eq-j4" type="text" placeholder="Opcional"/></div>
-    </div>
     <div class="form-row">
-      <div class="form-group" style="max-width:280px;"><label>Jugador 5</label><input id="eq-j5" type="text" placeholder="Opcional"/></div>
-      <div class="form-group" style="flex:0;"></div>
+      <div class="form-group"><label>Nombre *</label><input id="eq-nombre" type="text" placeholder="Club Atletico A"/></div>
+      <div class="form-group"><label>Categoria</label><select id="eq-cat"></select></div>
+      <div class="form-group" id="eq-pago-wrap" style="display:none;max-width:110px;">
+        <label>Inscripcion</label>
+        <div style="display:flex;align-items:center;gap:6px;height:36px;">
+          <input type="checkbox" id="eq-pago" style="width:16px;height:16px;cursor:pointer;"/>
+          <label for="eq-pago" style="font-size:13px;cursor:pointer;">Pago</label>
+        </div>
+      </div>
+      <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="addEquipo()">+ Crear</button></div>
     </div>
+    <div id="alert-equipo"></div>
   </div>
-  <div class="form-row" style="margin-bottom:0;">
-    <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="addEquipo()">+ Crear equipo</button></div>
-  </div>
-  <div id="alert-equipo"></div>
+  <div id="caja-equipos-display"></div>
+  <div id="equipos-list-wrap"><div class="empty"><div class="empty-icon">&#x1F91D;</div><p>No hay equipos</p></div></div>
 </div>
 
 <div class="section" id="tab-zonas">
