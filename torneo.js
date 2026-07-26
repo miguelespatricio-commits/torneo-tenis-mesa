@@ -466,13 +466,16 @@ function saveSetScore(mid,si,field,val,inputEl){
   var res2=matchResult(mv2.sets,setsToWin);
   if(res2.done){renderResults();return;}
   var nextSi=setsToDisplay(mv2.sets,setsToWin,totalSets)-1;
-  renderResults();
-  setTimeout(function(){
-    var panelId='panel-'+mid;
-    var panel=document.getElementById(panelId);
-    if(panel)panel.style.display='block';
-    focusNextInput(mid,nextSi);
-  },30);
+renderResults();
+setTimeout(function(){
+  var panelId='panel-'+mid;
+  var panel=document.getElementById(panelId);
+  if(panel)panel.style.display='block';
+  // Asignar tabindex en orden correcto a todos los inputs del partido
+  var all=Array.from(document.querySelectorAll('input[data-mid="'+mid+'"]'));
+  all.forEach(function(inp,idx){inp.tabIndex=100+idx;});
+  focusNextInput(mid,nextSi);
+},30);
 }
 function matchStatusHTML(mid){
   var mv=S.matches[mid]||{};
@@ -770,7 +773,17 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
   applyScoreValidation(inputEl,s.a,s.b);
   if(!setIsComplete(s.a,s.b))return;
   var res=matchResult(S.bracketScores[k].sets,setsToWin);
-  if(res.done){var winner=res.w1>=setsToWin?1:2;advanceBracket(storeKey,ri,mi,winner);return;}
+  if(res.done){
+  var winner=res.w1>=setsToWin?1:2;
+  advanceBracket(storeKey,ri,mi,winner);
+  // Reabrir el panel para mostrar el resultado final
+  setTimeout(function(){
+    var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
+    var panel=document.getElementById(panelId);
+    if(panel)panel.style.display='block';
+  },50);
+  return;
+}
   var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
   var panel=document.getElementById(panelId);if(!panel)return;
   var nextSi=si+1;
