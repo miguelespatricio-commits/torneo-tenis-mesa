@@ -187,12 +187,22 @@ function renderPlayers(){
 // ═══════════════════ EQUIPOS ═══════════════════
 function addEquipo(){
   var n=document.getElementById('eq-nombre').value.trim();
-  if(!n){salert('alert-equipo','Ingresa el nombre','warn',3000);return;}
+  if(!n){salert('alert-equipo','Ingresa el nombre del equipo','warn',3000);return;}
   var pago=S.config.inscripcion?document.getElementById('eq-pago').checked:null;
-  S.equipos.push({id:uid(),type:'equipo',nombre:n,cat:document.getElementById('eq-cat').value,jugadores:[],zona:false,pago:pago});
+  var eq={id:uid(),type:'equipo',nombre:n,cat:document.getElementById('eq-cat').value,jugadores:[],zona:false,pago:pago};
+  S.equipos.push(eq);
   document.getElementById('eq-nombre').value='';
   document.getElementById('eq-pago').checked=false;
   renderEquipos();renderCajaEquipos();updateSelects();updateMetrics();
+  // Abrir automaticamente el panel de ese equipo para agregar jugadores
+  setTimeout(function(){
+    var inp=document.getElementById('mbr-'+eq.id);
+    if(inp){
+      inp.scrollIntoView({behavior:'smooth',block:'center'});
+      inp.focus();
+      inp.placeholder='Jugador 1 (minimo 2 para usar el equipo)';
+    }
+  },100);
 }
 function removeEquipo(id){
   if(!confirm('Eliminar equipo?'))return;
@@ -201,9 +211,13 @@ function removeEquipo(id){
   renderEquipos();renderCajaEquipos();updateMetrics();
 }
 function addMember(eqId){
-  var inp=document.getElementById('mbr-'+eqId);var n=inp.value.trim();if(!n)return;
+  var inp=document.getElementById('mbr-'+eqId);
+  var n=inp.value.trim();if(!n)return;
   var eq=S.equipos.find(function(e){return e.id===eqId;});if(!eq)return;
-  eq.jugadores.push({id:uid(),nombre:n});inp.value='';renderEquipos();
+  eq.jugadores.push({id:uid(),nombre:n});
+  inp.value='';
+  inp.placeholder=eq.jugadores.length<2?'Jugador '+(eq.jugadores.length+1)+' (minimo 2)':'Agregar otro jugador...';
+  renderEquipos();renderCajaEquipos();
 }
 function removeMember(eqId,mId){
   var eq=S.equipos.find(function(e){return e.id===eqId;});if(!eq)return;
