@@ -844,7 +844,9 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this)"/>';
   panel.appendChild(row);
   var newInp=row.querySelector('input[type=number]');
-  if(newInp){newInp.focus();newInp.select();}
+  if(newInp){newInp.focus();newInp.select();
+    
+  }
 
 function buildRounds(seeds){
   var size=Math.pow(2,Math.ceil(Math.log2(Math.max(seeds.length,2))));
