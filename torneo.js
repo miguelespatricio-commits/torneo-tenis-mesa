@@ -547,11 +547,15 @@ function renderResults(){
         rA+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.a||'')+'" placeholder="0"'
           +' data-mid="'+m+'" data-si="'+si+'" data-field="a"'
           +' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
-          +' oninput="saveSetScore(\''+m+'\','+si+',\'a\',this.value,this)" onkeydown="handleScoreTab(event,this,\''+m+'\')"/></div>';
+        +' oninput="saveSetScore(\''+m+'\','+si+',\'a\',this.value,this)"'
++(setIsComplete(s.a,s.b)?' readonly style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--bg);color:var(--text);"':' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"')
++'/></div>';  
         rB+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.b||'')+'" placeholder="0"'
           +' data-mid="'+m+'" data-si="'+si+'" data-field="b"'
           +' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcB+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
-          +' oninput="saveSetScore(\''+m+'\','+si+',\'b\',this.value,this)" onkeydown="handleScoreTab(event,this,\''+m+'\')"/></div>';
+       +' oninput="saveSetScore(\''+m+'\','+si+',\'b\',this.value,this)"'
++(setIsComplete(s.a,s.b)?' readonly style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcB+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--bg);color:var(--text);"':' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcB+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"')
++'/></div>';   
       }
       var gridCols='minmax(90px,140px) repeat('+stsShow+',52px)';
       var panelId='panel-'+m;
@@ -791,21 +795,38 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
   if(!setIsComplete(s.a,s.b))return;
   var res=matchResult(S.bracketScores[k].sets,setsToWin);
   if(res.done){
-  var winner=res.w1>=setsToWin?1:2;
-  var _sk=storeKey,_ri=ri,_mi=mi;
-  advanceBracket(storeKey,ri,mi,winner);
-  setTimeout(function(){
-    var panelId='be-'+_sk.replace(/[^a-z0-9]/gi,'_')+'-'+_ri+'-'+_mi;
-    var panel=document.getElementById(panelId);
-    if(panel){panel.style.display='block';}
-  },80);
-  // Reabrir el panel para mostrar el resultado final
-  setTimeout(function(){
+    var winner=res.w1>=setsToWin?1:2;
+    // Guardar el panelId ANTES de re-renderizar
     var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
-    var panel=document.getElementById(panelId);
-    if(panel)panel.style.display='block';
-  },50);
-  return;
+    advanceBracket(storeKey,ri,mi,winner);
+    // Buscar el panel nuevo en el DOM re-renderizado y abrirlo
+    setTimeout(function(){
+      var panel=document.getElementById(panelId);
+      if(panel)panel.style.display='block';
+    },100);
+    return;
+  }
+  // Set completo pero partido no terminado: agregar fila del siguiente set
+  var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
+  var panel=document.getElementById(panelId);
+  if(!panel)return;
+  var nextSi=si+1;
+  if(panel.querySelector('input[data-si="'+nextSi+'"]'))return;
+  var row=document.createElement('div');
+  row.className='set-row';
+  row.dataset.si=nextSi;
+  row.style.cssText='display:flex;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;';
+  row.innerHTML='<span style="font-size:10px;color:var(--text-muted);width:28px;">S'+(nextSi+1)+'</span>'
+    +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="a"'
+    +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
+    +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'a\',this.value,this)"/>'
+    +'<span style="color:var(--text-muted);font-size:11px;">&ndash;</span>'
+    +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="b"'
+    +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
+    +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this)"/>';
+  panel.appendChild(row);
+  var newInp=row.querySelector('input[type=number]');
+  if(newInp){newInp.focus();newInp.select();}
 }
   var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
   var panel=document.getElementById(panelId);if(!panel)return;
