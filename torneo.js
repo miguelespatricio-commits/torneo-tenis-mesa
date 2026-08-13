@@ -899,14 +899,10 @@ function advanceBracket(storeKey,ri,mi,w){
       if(b.rounds[rr]&&b.rounds[rr][nmi]){b.rounds[rr][nmi].winner=null;b.rounds[rr][nmi].auto=false;}
     }
   }
-  // Re-renderizar y reabrir el panel
-  var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
+  // Re-renderizar (el panel queda cerrado tras cargar el resultado)
   if(isRl)renderRLBracket(key);else renderBracket(key);
-  setTimeout(function(){
-    var panel=document.getElementById(panelId);
-    if(panel)panel.style.display='block';
-  },50);
 }
+
 function getChamp(rounds){
   var last=rounds[rounds.length-1]&&rounds[rounds.length-1][0];if(!last)return null;
   if(last.winner===1)return last.p1&&last.p1.player;
