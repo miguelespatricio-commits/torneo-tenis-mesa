@@ -798,12 +798,19 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
   while(S.bracketScores[k].sets.length<=si)S.bracketScores[k].sets.push({a:'',b:''});
   S.bracketScores[k].sets[si][field]=val;
   var s=S.bracketScores[k].sets[si];
-  var setsToWin=parseInt(S.config.sets||2);
   var bothFilled=s.a!==''&&s.a!==undefined&&s.b!==''&&s.b!==undefined;
-  if(!bothFilled){clearSetRowErrors(inputEl);autoFocusSibling(inputEl);return;}
+  if(!bothFilled){clearSetRowErrors(inputEl);return;}
   applyScoreValidation(inputEl,s.a,s.b);
+}
+function commitBracketSetScore(storeKey,ri,mi,si){
+  var k=bScoreKey(storeKey,ri,mi);
+  var mv=S.bracketScores[k];if(!mv||!mv.sets||!mv.sets[si])return;
+  var s=mv.sets[si];
+  var bothFilled=s.a!==''&&s.a!==undefined&&s.b!==''&&s.b!==undefined;
+  if(!bothFilled)return;
   if(!setIsComplete(s.a,s.b))return;
-  var res=matchResult(S.bracketScores[k].sets,setsToWin);
+  var setsToWin=parseInt(S.config.sets||2);
+  var res=matchResult(mv.sets,setsToWin);
   if(res.done){
     var winner=res.w1>=setsToWin?1:2;
     var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
@@ -826,11 +833,13 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
   row.innerHTML='<span style="font-size:10px;color:var(--text-muted);width:28px;">S'+(nextSi+1)+'</span>'
     +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="a"'
     +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
-    +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'a\',this.value,this)"/>'
+    +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'a\',this.value,this)"'
+    +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"/>'
     +'<span style="color:var(--text-muted);font-size:11px;">&ndash;</span>'
     +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="b"'
     +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
-    +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this)"/>';
+    +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this)"'
+    +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"/>';
   panel.appendChild(row);
   var newInp=row.querySelector('input[type=number]');
   if(newInp){newInp.focus();newInp.select();}
@@ -884,12 +893,6 @@ function advanceBracket(storeKey,ri,mi,w){
     }
   }
   if(isRl)renderRLBracket(key);else renderBracket(key);
-// Guardar que este panel estaba abierto para reabrirlo
-setTimeout(function(){
-  var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
-  var panel=document.getElementById(panelId);
-  if(panel){panel.style.display='block';}
-},30);
 }
 function getChamp(rounds){
   var last=rounds[rounds.length-1]&&rounds[rounds.length-1][0];if(!last)return null;
@@ -940,11 +943,13 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +'<span style="font-size:10px;color:var(--text-muted);width:28px;">S'+(si+1)+'</span>'
           +'<input type="number" min="0" value="'+(s.a||'')+'" placeholder="0" data-mid="'+bKey+'" data-si="'+si+'" data-field="a"'
           +' style="width:38px;height:26px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':aWin?'var(--success)':bWin2?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
-          +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'a\',this.value,this)"/>'
+          +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'a\',this.value,this)"'
+          +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+')"/>'
           +'<span style="color:var(--text-muted);font-size:11px;">&ndash;</span>'
           +'<input type="number" min="0" value="'+(s.b||'')+'" placeholder="0" data-mid="'+bKey+'" data-si="'+si+'" data-field="b"'
           +' style="width:38px;height:26px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':bWin2?'var(--success)':aWin?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
-          +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'b\',this.value,this)"/>'
+          +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'b\',this.value,this)"'
+          +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+')"/>'
           +(aWin?'<span style="color:var(--success);font-size:10px;">&#x2713;</span>':bWin2?'<span style="color:var(--success);font-size:10px;margin-left:10px;">&#x2713;</span>':hasErr?'<span style="color:var(--danger);font-size:9px;">&#x2717;</span>':'')
           +'</div>';
       }
