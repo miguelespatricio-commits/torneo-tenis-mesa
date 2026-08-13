@@ -846,6 +846,9 @@ function commitBracketSetScore(storeKey,ri,mi,si){
   var res=matchResult(mv.sets,setsToWin);
   if(!res.done)return;
   var winner=res.w1>=setsToWin?1:2;
+  var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
+  var panel=document.getElementById(panelId);
+  if(panel)panel.style.display='none';
   advanceBracket(storeKey,ri,mi,winner);
 }
   
