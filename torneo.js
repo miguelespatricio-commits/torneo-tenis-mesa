@@ -814,13 +814,17 @@ function commitBracketSetScore(storeKey,ri,mi,si){
   if(res.done){
     var winner=res.w1>=setsToWin?1:2;
     var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
-    advanceBracket(storeKey,ri,mi,winner);
+    // Cerrar el panel primero, igual que cuando se hace click afuera
+    var panel=document.getElementById(panelId);
+    if(panel)panel.style.display='none';
+    // Luego re-renderizar para mostrar resultado en cabecera
     setTimeout(function(){
-      var panel=document.getElementById(panelId);
-      if(panel)panel.style.display='block';
-    },100);
+      advanceBracket(storeKey,ri,mi,winner);
+    },50);
     return;
   }
+  // Si no terminó, agregar siguiente set (ya lo maneja saveBracketSetScore)
+}
   var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
   var panel=document.getElementById(panelId);
   if(!panel)return;
