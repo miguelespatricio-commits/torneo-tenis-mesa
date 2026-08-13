@@ -481,23 +481,25 @@ function saveSetScore(mid,si,field,val,inputEl){
   updateMetrics();
   var statusEl=document.getElementById('mstatus-'+mid);
   if(statusEl)statusEl.innerHTML=matchStatusHTML(mid);
+}
+function commitSetScore(mid,si,inputEl){
+  var mv=S.matches[mid];if(!mv||!mv.sets||!mv.sets[si])return;
+  var s=mv.sets[si];
+  var bothFilled=s.a!==''&&s.a!==undefined&&s.b!==''&&s.b!==undefined;
+  if(!bothFilled)return;
   if(!setIsComplete(s.a,s.b))return;
   var setsToWin=parseInt(S.config.sets||2);
   var totalSets=setsToWin*2-1;
-  var mv2=S.matches[mid];
-  var res2=matchResult(mv2.sets,setsToWin);
+  var res2=matchResult(mv.sets,setsToWin);
   if(res2.done){renderResults();return;}
-  var nextSi=setsToDisplay(mv2.sets,setsToWin,totalSets)-1;
-renderResults();
-setTimeout(function(){
-  var panelId='panel-'+mid;
-  var panel=document.getElementById(panelId);
-  if(panel)panel.style.display='block';
-  // Asignar tabindex en orden correcto a todos los inputs del partido
-  var all=Array.from(document.querySelectorAll('input[data-mid="'+mid+'"]'));
-  all.forEach(function(inp,idx){inp.tabIndex=100+idx;});
-  focusNextInput(mid,nextSi);
-},30);
+  var nextSi=setsToDisplay(mv.sets,setsToWin,totalSets)-1;
+  renderResults();
+  setTimeout(function(){
+    var panelId='panel-'+mid;
+    var panel=document.getElementById(panelId);
+    if(panel)panel.style.display='block';
+    focusNextInput(mid,nextSi);
+  },30);
 }
 function matchStatusHTML(mid){
   var mv=S.matches[mid]||{};
@@ -554,15 +556,16 @@ function renderResults(){
         var tiA=doneSet?-1:__tab++;
         var tiB=doneSet?-1:__tab++;
         var bgSet=doneSet?'var(--bg)':'var(--surface)';
-        var roA=doneSet?' readonly':'';
         rA+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.a||'')+'" placeholder="0"'
-          +' data-mid="'+m+'" data-si="'+si+'" data-field="a" tabindex="'+tiA+'"'+roA
+          +' data-mid="'+m+'" data-si="'+si+'" data-field="a" tabindex="'+tiA+'"'
           +' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:'+bgSet+';color:var(--text);"'
-          +' oninput="saveSetScore(\''+m+'\','+si+',\'a\',this.value,this)"/></div>';
+          +' oninput="saveSetScore(\''+m+'\','+si+',\'a\',this.value,this)"'
+          +' onblur="commitSetScore(\''+m+'\','+si+',this)"/></div>';
         rB+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.b||'')+'" placeholder="0"'
-          +' data-mid="'+m+'" data-si="'+si+'" data-field="b" tabindex="'+tiB+'"'+roA
+          +' data-mid="'+m+'" data-si="'+si+'" data-field="b" tabindex="'+tiB+'"'
           +' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcB+';border-radius:var(--radius);font-size:12px;text-align:center;background:'+bgSet+';color:var(--text);"'
-          +' oninput="saveSetScore(\''+m+'\','+si+',\'b\',this.value,this)"/></div>';
+          +' oninput="saveSetScore(\''+m+'\','+si+',\'b\',this.value,this)"'
+          +' onblur="commitSetScore(\''+m+'\','+si+',this)"/></div>';
       }
       var gridCols='minmax(90px,140px) repeat('+stsShow+',52px)';
       var panelId='panel-'+m;
