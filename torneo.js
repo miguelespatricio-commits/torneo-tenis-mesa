@@ -824,7 +824,7 @@ function commitBracketSetScore(storeKey,ri,mi,si){
     return;
   }
   // Si no terminó, agregar siguiente set (ya lo maneja saveBracketSetScore)
-}
+
   var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
   var panel=document.getElementById(panelId);
   if(!panel)return;
