@@ -806,8 +806,8 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
   var setsToWin=parseInt(S.config.sets||2);
   var res=matchResult(S.bracketScores[k].sets,setsToWin);
   if(res.done){
-    // El partido termina cuando el usuario salga del campo (onblur/Tab)
-    // commitBracketSetScore se encarga de eso
+    var winner=res.w1>=setsToWin?1:2;
+    advanceBracket(storeKey,ri,mi,winner);
     return;
   }
   // Set completo pero partido no terminado: agregar fila siguiente set
