@@ -807,7 +807,12 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
   var res=matchResult(S.bracketScores[k].sets,setsToWin);
   if(res.done){
     var winner=res.w1>=setsToWin?1:2;
+    var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
     advanceBracket(storeKey,ri,mi,winner);
+    setTimeout(function(){
+      var panel=document.getElementById(panelId);
+      if(panel)panel.style.display='block';
+    },100);
     return;
   }
   // Set completo pero partido no terminado: agregar fila siguiente set
