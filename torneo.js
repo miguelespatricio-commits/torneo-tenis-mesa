@@ -950,7 +950,8 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +'<input type="number" min="0" value="'+(s.b||'')+'" placeholder="0" data-mid="'+bKey+'" data-si="'+si+'" data-field="b"'
           +' style="width:38px;height:26px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':bWin2?'var(--success)':aWin?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'b\',this.value,this)"'
-          +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+')"/>'
+          +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+')"'
+          +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'b\',this.value,this);commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+');}"/>'
           +(aWin?'<span style="color:var(--success);font-size:10px;">&#x2713;</span>':bWin2?'<span style="color:var(--success);font-size:10px;margin-left:10px;">&#x2713;</span>':hasErr?'<span style="color:var(--danger);font-size:9px;">&#x2717;</span>':'')
           +'</div>';
       }
