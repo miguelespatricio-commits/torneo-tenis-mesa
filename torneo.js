@@ -831,10 +831,22 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
     +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this)"'
     +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
-    +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this);}"/>'
+    +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this);commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+');}"/>'
   panel.appendChild(row);
   var newInp=row.querySelector('input[type=number]');
   if(newInp){newInp.focus();newInp.select();}
+}
+function commitBracketSetScore(storeKey,ri,mi,si){
+  var k=bScoreKey(storeKey,ri,mi);
+  var mv=S.bracketScores[k];if(!mv||!mv.sets||!mv.sets[si])return;
+  var s=mv.sets[si];
+  if(!s.a&&!s.b)return;
+  if(!setIsComplete(s.a,s.b))return;
+  var setsToWin=parseInt(S.config.sets||2);
+  var res=matchResult(mv.sets,setsToWin);
+  if(!res.done)return;
+  var winner=res.w1>=setsToWin?1:2;
+  advanceBracket(storeKey,ri,mi,winner);
 }
   
 function buildRounds(seeds){
