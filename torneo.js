@@ -801,17 +801,24 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
   var bothFilled=s.a!==''&&s.a!==undefined&&s.b!==''&&s.b!==undefined;
   if(!bothFilled){clearSetRowErrors(inputEl);return;}
   applyScoreValidation(inputEl,s.a,s.b);
+}
+function commitBracketSetScore(storeKey,ri,mi,si){
+  var k=bScoreKey(storeKey,ri,mi);
+  var mv=S.bracketScores[k];if(!mv||!mv.sets||!mv.sets[si])return;
+  var s=mv.sets[si];
+  if(!s.a&&!s.b)return;
   if(!setIsComplete(s.a,s.b))return;
-  // Set completo - verificar si el partido terminó
   var setsToWin=parseInt(S.config.sets||2);
-  var res=matchResult(S.bracketScores[k].sets,setsToWin);
+  var res=matchResult(mv.sets,setsToWin);
+  var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
   if(res.done){
     var winner=res.w1>=setsToWin?1:2;
+    var panel=document.getElementById(panelId);
+    if(panel)panel.style.display='none';
     advanceBracket(storeKey,ri,mi,winner);
     return;
   }
   // Set completo pero partido no terminado: agregar fila siguiente set
-  var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
   var panel=document.getElementById(panelId);
   if(!panel)return;
   var nextSi=si+1;
@@ -835,21 +842,6 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
   panel.appendChild(row);
   var newInp=row.querySelector('input[type=number]');
   if(newInp){newInp.focus();newInp.select();}
-}
-function commitBracketSetScore(storeKey,ri,mi,si){
-  var k=bScoreKey(storeKey,ri,mi);
-  var mv=S.bracketScores[k];if(!mv||!mv.sets||!mv.sets[si])return;
-  var s=mv.sets[si];
-  if(!s.a&&!s.b)return;
-  if(!setIsComplete(s.a,s.b))return;
-  var setsToWin=parseInt(S.config.sets||2);
-  var res=matchResult(mv.sets,setsToWin);
-  if(!res.done)return;
-  var winner=res.w1>=setsToWin?1:2;
-  var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
-  var panel=document.getElementById(panelId);
-  if(panel)panel.style.display='none';
-  advanceBracket(storeKey,ri,mi,winner);
 }
   
 function buildRounds(seeds){
