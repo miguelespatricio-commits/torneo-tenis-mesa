@@ -792,7 +792,53 @@ function renderRanking(){
 function bScoreKey(storeKey,ri,mi){return storeKey+'|'+ri+'|'+mi;}
 function getBracketSets(storeKey,ri,mi){return(S.bracketScores[bScoreKey(storeKey,ri,mi)]||{sets:[]}).sets;}
 function toggleBracketEntry(id){var el=document.getElementById(id);if(!el)return;el.style.display=el.style.display==='none'?'block':'none';}
-
+function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
+  var k=bScoreKey(storeKey,ri,mi);
+  if(!S.bracketScores[k])S.bracketScores[k]={sets:[]};
+  while(S.bracketScores[k].sets.length<=si)S.bracketScores[k].sets.push({a:'',b:''});
+  S.bracketScores[k].sets[si][field]=val;
+  var s=S.bracketScores[k].sets[si];
+  var bothFilled=s.a!==''&&s.a!==undefined&&s.b!==''&&s.b!==undefined;
+  if(!bothFilled){clearSetRowErrors(inputEl);return;}
+  applyScoreValidation(inputEl,s.a,s.b);
+  if(!setIsComplete(s.a,s.b))return;
+  // Set completo - verificar si el partido terminó
+  var setsToWin=parseInt(S.config.sets||2);
+  var res=matchResult(S.bracketScores[k].sets,setsToWin);
+  if(res.done){
+    // El partido termina cuando el usuario salga del campo (onblur/Tab)
+    // commitBracketSetScore se encarga de eso
+    return;
+  }
+  // Set completo pero partido no terminado: agregar fila siguiente set
+  var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
+  var panel=document.getElementById(panelId);
+  if(!panel)return;
+  var nextSi=si+1;
+  if(panel.querySelector('input[data-si="'+nextSi+'"]'))return;
+  var row=document.createElement('div');
+  row.className='set-row';
+  row.dataset.si=nextSi;
+  row.style.cssText='display:flex;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;';
+  row.innerHTML='<span style="font-size:10px;color:var(--text-muted);width:28px;">S'+(nextSi+1)+'</span>'
+    +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="a"'
+    +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
+    +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'a\',this.value,this)"'
+    +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
+    +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+');}"/>'
+    +'<span style="color:var(--text-muted);font-size:11px;">&ndash;</span>'
+    +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="b"'
+    +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
+    +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this)"'
+    +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
+    +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+');}"/>';
+  panel.appendChild(row);
+  // Foco al primer input del nuevo set
+  setTimeout(function(){
+    var newInp=row.querySelector('input[type=number]');
+    if(newInp){newInp.focus();newInp.select();}
+  },20);
+}
   
 function buildRounds(seeds){
   var size=Math.pow(2,Math.ceil(Math.log2(Math.max(seeds.length,2))));
