@@ -807,12 +807,7 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
   var res=matchResult(S.bracketScores[k].sets,setsToWin);
   if(res.done){
     var winner=res.w1>=setsToWin?1:2;
-    var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
     advanceBracket(storeKey,ri,mi,winner);
-    setTimeout(function(){
-      var panel=document.getElementById(panelId);
-      if(panel)panel.style.display='block';
-    },100);
     return;
   }
   // Set completo pero partido no terminado: agregar fila siguiente set
@@ -830,19 +825,16 @@ function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
     +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'a\',this.value,this)"'
     +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
-    +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+');}"/>'
+    +' onkeydown="if(event.key===\'Tab\'&&this.value!==\'\'){event.preventDefault();var nb=this.parentNode.querySelectorAll(\'input\')[1];if(nb){nb.focus();nb.select();}}"/>'
     +'<span style="color:var(--text-muted);font-size:11px;">&ndash;</span>'
     +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="b"'
     +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this)"'
     +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
-    +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+');}"/>';
+    +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this);}"/>'
   panel.appendChild(row);
-  // Foco al primer input del nuevo set
-  setTimeout(function(){
-    var newInp=row.querySelector('input[type=number]');
-    if(newInp){newInp.focus();newInp.select();}
-  },20);
+  var newInp=row.querySelector('input[type=number]');
+  if(newInp){newInp.focus();newInp.select();}
 }
   
 function buildRounds(seeds){
