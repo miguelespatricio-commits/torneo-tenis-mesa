@@ -452,6 +452,11 @@ function autoFocusSibling(inputEl){
   var val=parseInt(inputEl.value);if(isNaN(val))return;
   if(val!==11&&val<12)return;
   var matchId=inputEl.dataset.mid;
+  var si=inputEl.dataset.si;
+  var field=inputEl.dataset.field;
+  var otherField=field==='a'?'b':'a';
+  var sibling=document.querySelector('input[data-mid="'+matchId+'"][data-si="'+si+'"][data-field="'+otherField+'"]');
+  if(sibling&&sibling.value===''){sibling.focus();sibling.select();return;}
   focusNextEmpty(inputEl,matchId);
 }
 function focusNextInput(matchId,setIdx){
@@ -521,6 +526,7 @@ function renderResults(){
     var ps=z.players.map(function(pid){return S.players.find(function(p){return p.id===pid;});}).filter(Boolean);
     if(ps.length<2)return'';
     var matchCards='';
+    var __tab=1;
     for(var i=0;i<ps.length;i++){for(var j=i+1;j<ps.length;j++){
       var m=midKey(z.id,ps[i].id,ps[j].id);
       var mv=S.matches[m]||{sets:[]};
@@ -544,18 +550,19 @@ function renderResults(){
         hCols+='<div style="font-size:10px;color:var(--text-muted);text-align:center;font-weight:600;">S'+(si+1)+'</div>';
         var bcA=hasErr?'var(--danger)':aWin?'var(--success)':bWin?'#fca5a5':'var(--border)';
         var bcB=hasErr?'var(--danger)':bWin?'var(--success)':aWin?'#fca5a5':'var(--border)';
+        var doneSet=setIsComplete(s.a,s.b);
+        var tiA=doneSet?-1:__tab++;
+        var tiB=doneSet?-1:__tab++;
+        var bgSet=doneSet?'var(--bg)':'var(--surface)';
+        var roA=doneSet?' readonly':'';
         rA+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.a||'')+'" placeholder="0"'
-          +' data-mid="'+m+'" data-si="'+si+'" data-field="a"'
-          +' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
-        +' oninput="saveSetScore(\''+m+'\','+si+',\'a\',this.value,this)"'
-+(setIsComplete(s.a,s.b)?' readonly style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--bg);color:var(--text);"':' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"')
-+'/></div>';  
+          +' data-mid="'+m+'" data-si="'+si+'" data-field="a" tabindex="'+tiA+'"'+roA
+          +' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:'+bgSet+';color:var(--text);"'
+          +' oninput="saveSetScore(\''+m+'\','+si+',\'a\',this.value,this)"/></div>';
         rB+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.b||'')+'" placeholder="0"'
-          +' data-mid="'+m+'" data-si="'+si+'" data-field="b"'
-          +' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcB+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
-       +' oninput="saveSetScore(\''+m+'\','+si+',\'b\',this.value,this)"'
-+(setIsComplete(s.a,s.b)?' readonly style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcB+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--bg);color:var(--text);"':' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcB+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"')
-+'/></div>';   
+          +' data-mid="'+m+'" data-si="'+si+'" data-field="b" tabindex="'+tiB+'"'+roA
+          +' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcB+';border-radius:var(--radius);font-size:12px;text-align:center;background:'+bgSet+';color:var(--text);"'
+          +' oninput="saveSetScore(\''+m+'\','+si+',\'b\',this.value,this)"/></div>';
       }
       var gridCols='minmax(90px,140px) repeat('+stsShow+',52px)';
       var panelId='panel-'+m;
