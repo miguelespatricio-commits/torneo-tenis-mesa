@@ -1197,7 +1197,19 @@ function generateRelampago(){
   var pool=src==='equipos'?S.equipos.filter(function(e){return e.cat===cat;}):S.players.filter(function(p){return p.cat===cat;});
   if(!pool.length){alert('No hay participantes para esa categoria y tipo');return;}
   if(seed==='random')pool=[...pool].sort(function(){return Math.random()-.5;});
-  S.rlBracket[cat]={rounds:buildRounds(pool.map(function(p){return{player:p,zona:null};})),source:src};
+  var participants=pool.map(function(p){return{player:p,zona:null};});
+  var total=participants.length;
+  var bracketSize=Math.pow(2,Math.ceil(Math.log2(Math.max(total,2))));
+  var numByes=bracketSize-total;
+  var priority=seedPriorityTable(bracketSize);
+  var slots=new Array(bracketSize).fill(null);
+  // BYEs en las primeras numByes posiciones de la tabla de prioridad,
+  // el resto se llena con los participantes (ya sorteados si random)
+  var byeSet={};
+  priority.slice(0,numByes).forEach(function(p){byeSet[p]=true;});
+  var fillPositions=priority.filter(function(p){return !byeSet[p];});
+  fillPositions.forEach(function(p,idx){slots[p-1]=participants[idx];});
+  S.rlBracket[cat]={rounds:buildRounds(slots),source:src};
   renderRLBracket(cat);updateMetrics();
 }
 function renderRLBracket(cat){
