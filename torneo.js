@@ -916,11 +916,17 @@ function makeBracketHTML(rounds,storeKey,isRl){
   var wClass=isRl?' rl-winner':'';
   var setsToWin=parseInt(S.config.sets||2);
   var totalSets=setsToWin*2-1;
-  var h='<div class="bracket-scroll"><div class="rounds-wrap">';
+  // Altura fija de cada match-box (aprox px)
+  var MATCH_H=62;
+  // Total de slots en ronda 1 determina la altura total del bracket
+  var baseSlots=rounds[0]?rounds[0].length:1;
+  var totalH=baseSlots*MATCH_H+(baseSlots-1)*8;
+  var h='<div class="bracket-scroll"><div class="rounds-wrap" style="align-items:stretch;">';
   rounds.forEach(function(round,ri){
-    var gap=Math.pow(2,ri)*8,pt=Math.pow(2,ri)*8-8;
+    var slotCount=round.length;
+    var slotH=totalH/slotCount;
     h+='<div class="round-col"><div class="round-title">'+rn(ri)+'</div>'
-      +'<div style="display:flex;flex-direction:column;gap:'+gap+'px;padding-top:'+pt+'px;">';
+      +'<div style="display:flex;flex-direction:column;height:'+totalH+'px;">';
     round.forEach(function(match,mi){
       var n1=match.p1.player?dn(match.p1.player):match.p1.isBye?'BYE':'&mdash;';
       var n2=match.p2.player?dn(match.p2.player):match.p2.isBye?'BYE':'&mdash;';
@@ -961,7 +967,9 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +(res.done?'<div style="color:var(--success);font-size:11px;font-weight:500;margin-top:4px;">&#x1F3C6; '+(w===1?n1:n2)+' ('+res.w1+'&ndash;'+res.w2+')</div>':'')
           +'</div>'
         :'';
-      h+='<div class="match-box">'
+      // Cada slot ocupa slotH px, el match-box se centra dentro con flex
+      h+='<div style="height:'+slotH+'px;display:flex;align-items:center;justify-content:center;">'
+        +'<div class="match-box" style="width:100%;margin:0 8px;">'
         +'<div class="match-player'+(w===1?' winner'+wClass:'')+(b1?' bye':'')+'"'
         +' onclick="'+(canPlay?'toggleBracketEntry(\''+entryId+'\')':'')+'"'
         +' style="cursor:'+(canPlay?'pointer':'default')+';">'
@@ -973,7 +981,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
         +'</span></div>'
         +'<div class="match-player'+(w===2?' winner'+wClass:'')+(b2?' bye':'')+'">'
         +'<span>'+n2+z2+'</span>'+(w===2?'<span style="color:var(--accent);font-size:11px;">&#x2713;</span>':'')
-        +'</div>'+entryPanel+'</div>';
+        +'</div>'+entryPanel+'</div></div>';
     });
     h+='</div></div>';
   });
