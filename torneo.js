@@ -154,47 +154,6 @@ function togglePago(pid){
   var p=S.players.find(function(x){return x.id===pid;});
   if(p){p.pago=!p.pago;renderPlayers();renderCajaSingles();}
 }
-function editPlayer(id){
-  var p=S.players.find(function(x){return x.id===id;});if(!p)return;
-  var catOpts=S.categories.map(function(c){return'<option value="'+c.id+'"'+(c.id===p.cat?' selected':'')+'>'+c.nombre+'</option>';}).join('');
-  var fields=p.type==='dobles'
-    ?'<div class="form-group"><label>Jugador 1</label><input id="edit-j1" type="text" value="'+p.j1+'"/></div>'
-     +'<div class="form-group"><label>Jugador 2</label><input id="edit-j2" type="text" value="'+p.j2+'"/></div>'
-     +'<div class="form-group"><label>Nombre pareja</label><input id="edit-dn" type="text" value="'+(p.displayName||'')+'"/></div>'
-    :'<div class="form-group"><label>Nombre</label><input id="edit-nombre" type="text" value="'+(p.nombre||'')+'"/></div>'
-     +'<div class="form-group"><label>Apellido</label><input id="edit-apellido" type="text" value="'+(p.apellido||'')+'"/></div>';
-  var modal='<div id="edit-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;">'
-    +'<div style="background:var(--surface);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
-    +'<h3 style="margin-bottom:16px;">Editar '+(p.type==='dobles'?'pareja':'jugador')+'</h3>'
-    +'<div style="display:flex;flex-direction:column;gap:12px;">'
-    +fields
-    +'<div class="form-group"><label>Club</label><input id="edit-club" type="text" value="'+(p.club||'')+'"/></div>'
-    +'<div class="form-group"><label>Categoria</label><select id="edit-cat">'+catOpts+'</select></div>'
-    +'</div>'
-    +'<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">'
-    +'<button class="btn" onclick="closeEditModal()">Cancelar</button>'
-    +'<button class="btn btn-primary" onclick="saveEditPlayer(\''+id+'\')">Guardar</button>'
-    +'</div></div></div>';
-  document.body.insertAdjacentHTML('beforeend',modal);
-}
-function saveEditPlayer(id){
-  var p=S.players.find(function(x){return x.id===id;});if(!p)return;
-  if(p.type==='dobles'){
-    p.j1=document.getElementById('edit-j1').value.trim()||p.j1;
-    p.j2=document.getElementById('edit-j2').value.trim()||p.j2;
-    p.displayName=document.getElementById('edit-dn').value.trim()||p.j1+' / '+p.j2;
-  }else{
-    p.nombre=document.getElementById('edit-nombre').value.trim()||p.nombre;
-    p.apellido=document.getElementById('edit-apellido').value.trim();
-  }
-  p.club=document.getElementById('edit-club').value.trim();
-  p.cat=document.getElementById('edit-cat').value;
-  closeEditModal();
-  renderPlayers();updateSelects();
-}
-function closeEditModal(){
-  var m=document.getElementById('edit-modal');if(m)m.remove();
-}
 function renderPlayers(){
   var w=document.getElementById('players-wrap');
   document.getElementById('player-count').textContent=S.players.length;
@@ -220,10 +179,7 @@ function renderPlayers(){
       +'<td style="color:var(--text-muted)">'+(p.club||'&mdash;')+'</td>'
       +'<td><span class="tag '+catCol(p.cat)+'">'+catNm(p.cat)+'</span></td>'
       +'<td>'+zl+'</td>'+pagoCell
-      +'<td style="display:flex;gap:4px;">'
-      +'<button class="btn btn-sm" onclick="editPlayer(\''+p.id+'\')">&#x270F;</button>'
-      +'<button class="btn btn-sm btn-danger" onclick="removePlayer(\''+p.id+'\')">&#x2715;</button>'
-      +'</td></tr>';
+      +'<td><button class="btn btn-sm btn-danger" onclick="removePlayer(\''+p.id+'\')">&#x2715;</button></td></tr>';
   }).join('');
   w.innerHTML='<table><thead><tr><th>#</th><th>Jugador/Pareja</th><th>Tipo</th><th>Club</th><th>Categoria</th><th>Zona</th>'+pagoHdr+'<th></th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
@@ -271,71 +227,6 @@ function toggleEqPago(eqId){
   var eq=S.equipos.find(function(e){return e.id===eqId;});
   if(eq){eq.pago=!eq.pago;renderEquipos();renderCajaEquipos();}
 }
-function editEquipo(id){
-  var eq=S.equipos.find(function(e){return e.id===id;});if(!eq)return;
-  var catOpts=S.categories.map(function(c){return'<option value="'+c.id+'"'+(c.id===eq.cat?' selected':'')+'>'+c.nombre+'</option>';}).join('');
-  var modal='<div id="edit-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;">'
-    +'<div style="background:var(--surface);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
-    +'<h3 style="margin-bottom:16px;">Editar equipo</h3>'
-    +'<div style="display:flex;flex-direction:column;gap:12px;">'
-    +'<div class="form-group"><label>Nombre del equipo</label><input id="edit-eq-nombre" type="text" value="'+eq.nombre+'"/></div>'
-    +'<div class="form-group"><label>Categoria</label><select id="edit-eq-cat">'+catOpts+'</select></div>'
-    +'<div>'
-    +'<div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Jugadores</div>'
-    +'<div id="edit-eq-members" style="display:flex;flex-direction:column;gap:6px;">'
-    +eq.jugadores.map(function(j){
-      return '<div style="display:flex;gap:6px;align-items:center;">'
-        +'<input type="text" value="'+j.nombre+'" id="edit-mbr-'+j.id+'" style="flex:1;"/>'
-        +'<button class="btn btn-sm btn-danger" onclick="removeEditMember(\''+id+'\',\''+j.id+'\')">&#x2715;</button>'
-        +'</div>';
-    }).join('')
-    +'</div>'
-    +'<div style="display:flex;gap:6px;margin-top:8px;">'
-    +'<input id="edit-new-member" type="text" placeholder="Agregar jugador..." style="flex:1;"/>'
-    +'<button class="btn btn-sm btn-primary" onclick="addEditMember(\''+id+'\')">+</button>'
-    +'</div>'
-    +'</div>'
-    +'</div>'
-    +'<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">'
-    +'<button class="btn" onclick="closeEditModal()">Cancelar</button>'
-    +'<button class="btn btn-primary" onclick="saveEditEquipo(\''+id+'\')">Guardar</button>'
-    +'</div></div></div>';
-  document.body.insertAdjacentHTML('beforeend',modal);
-}
-function saveEditEquipo(id){
-  var eq=S.equipos.find(function(e){return e.id===id;});if(!eq)return;
-  eq.nombre=document.getElementById('edit-eq-nombre').value.trim()||eq.nombre;
-  eq.cat=document.getElementById('edit-eq-cat').value;
-  eq.jugadores.forEach(function(j){
-    var inp=document.getElementById('edit-mbr-'+j.id);
-    if(inp&&inp.value.trim())j.nombre=inp.value.trim();
-  });
-  closeEditModal();
-  renderEquipos();updateSelects();
-}
-function addEditMember(eqId){
-  var eq=S.equipos.find(function(e){return e.id===eqId;});if(!eq)return;
-  var inp=document.getElementById('edit-new-member');
-  var n=inp.value.trim();if(!n)return;
-  eq.jugadores.push({id:uid(),nombre:n});
-  inp.value='';
-  // Refrescar lista de jugadores dentro del modal
-  var wrap=document.getElementById('edit-eq-members');
-  if(wrap){
-    var j=eq.jugadores[eq.jugadores.length-1];
-    var row=document.createElement('div');
-    row.style.cssText='display:flex;gap:6px;align-items:center;';
-    row.innerHTML='<input type="text" value="'+j.nombre+'" id="edit-mbr-'+j.id+'" style="flex:1;"/>'
-      +'<button class="btn btn-sm btn-danger" onclick="removeEditMember(\''+eqId+'\',\''+j.id+'\')">&#x2715;</button>';
-    wrap.appendChild(row);
-  }
-}
-function removeEditMember(eqId,mId){
-  var eq=S.equipos.find(function(e){return e.id===eqId;});if(!eq)return;
-  eq.jugadores=eq.jugadores.filter(function(j){return j.id!==mId;});
-  var row=document.getElementById('edit-mbr-'+mId);
-  if(row&&row.parentNode)row.parentNode.remove();
-}
 function eqPagoBtn(eq){
   if(!S.config.inscripcion)return'';
   var me=S.config['monto-equipo']&&parseFloat(S.config['monto-equipo']);
@@ -359,16 +250,12 @@ function renderEquipos(){
       return '<div class="card" style="margin:0;background:var(--surface);">'
         +'<div class="team-header">'
         +'<div><strong>'+eq.nombre+'</strong> <span class="tag tag-orange" style="font-size:10px;">Equipo</span>'+eqPagoBtn(eq)+'</div>'
-        +'<div style="display:flex;gap:4px;">'
-        +'<button class="btn btn-sm btn-ghost" onclick="editEquipo(\''+eq.id+'\')" style="color:var(--text-muted);font-size:11px;">&#x270F;</button>'
-        +'<button class="btn btn-sm btn-danger" onclick="removeEquipo(\''+eq.id+'\')">&#x2715;</button>'
-        +'</div></div>'
+        +'<button class="btn btn-sm btn-danger" onclick="removeEquipo(\''+eq.id+'\')">&#x2715;</button></div>'
         +'<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">'+eq.jugadores.length+' integrantes</div>'
         +'<table style="font-size:12px;margin-bottom:10px;"><tbody>'+members+'</tbody></table>'
         +'<div style="display:flex;gap:6px;">'
         +'<input id="mbr-'+eq.id+'" type="text" placeholder="Agregar integrante..." style="flex:1;" onkeydown="if(event.key===\'Enter\')addMember(\''+eq.id+'\')"/>'
-        +'<button class="btn btn-sm btn-primary" onclick="addMember(\''+eq.id+'\')">+</button>'
-        +'</div></div>';
+        +'<button class="btn btn-sm btn-primary" onclick="addMember(\''+eq.id+'\')">+</button></div></div>';
     }).join('');
     return '<div class="zone-section">'
       +'<div class="zone-section-title"><span class="tag '+catCol(cat)+'">'+catNm(cat)+'</span></div>'
@@ -959,35 +846,9 @@ function commitBracketSetScore(storeKey,ri,mi,si){
   
 function buildRounds(seeds){
   var size=Math.pow(2,Math.ceil(Math.log2(Math.max(seeds.length,2))));
-  var n=seeds.length;
-  var numByes=size-n;
-  // Distribuir BYEs en posiciones espejadas (estilo torneo oficial)
-  // Las posiciones de BYE se insertan intercaladas para que queden
-  // distribuidas en distintas partes de la llave
-  var positioned=new Array(size).fill(null);
-  // Primero colocar seeds en posiciones usando patron serpiente
-  // para que los BYEs queden distribuidos uniformemente
-  var byePositions=[];
-  if(numByes>0){
-    // Calcular posiciones de BYEs: distribuidas simétricamente
-    var step=size/numByes;
-    for(var b=0;b<numByes;b++){
-      var pos=Math.round(b*step+step/2)-1;
-      byePositions.push(pos);
-    }
-  }
-  // Llenar posiciones: BYE donde corresponde, seeds en el resto
-  var si=0;
-  for(var i=0;i<size;i++){
-    if(byePositions.indexOf(i)>=0){
-      positioned[i]=null; // BYE
-    } else {
-      positioned[i]=seeds[si]||null;
-      si++;
-    }
-  }
+  while(seeds.length<size)seeds.push(null);
   var rounds=[];
-  var cur=positioned.map(function(c){return{player:c?c.player:null,zona:c?c.zona:null,isBye:!c};});
+  var cur=seeds.map(function(c){return{player:c?c.player:null,zona:c?c.zona:null,isBye:!c};});
   while(cur.length>1){
     var round=[];
     for(var i=0;i<cur.length;i+=2){
@@ -1119,23 +980,93 @@ function makeBracketHTML(rounds,storeKey,isRl){
   h+='</div></div>';return h;
 }
 
+// ═══════════════════ SIEMBRA: TABLA DE PRIORIDAD ═══════════════════
+// Genera recursivamente la tabla de prioridad de posiciones para una llave
+// de tamano n (potencia de 2). El ORDEN del array es el orden de prioridad:
+// el rankeado k va a la posicion priority[k-1]. Es una permutacion auto-
+// inversa, por eso la misma tabla, leida desde el principio, tambien sirve
+// para repartir los byes de forma pareja por todo el cuadro cuando no hay
+// cabezas de serie. Verificado contra las tablas de 8, 16 y 32 posiciones.
+function seedPriorityTable(n){
+  if(n<=1)return[1];
+  var half=seedPriorityTable(n/2);
+  var res=[];
+  half.forEach(function(t,i){
+    if(i%2===0){res.push(t);res.push(n+1-t);}
+    else{res.push(n+1-t);res.push(t);}
+  });
+  return res;
+}
+function shuffleArray(arr){
+  var a=arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var tmp=a[i];a[i]=a[j];a[j]=tmp;
+  }
+  return a;
+}
+
 // ═══════════════════ GENERATE BRACKETS ═══════════════════
 function generateBracket(){
   var cat=document.getElementById('final-cat').value;
   if(!cat){alert('Selecciona una categoria');return;}
   var cn=parseInt(document.getElementById('clasif-count').value)||2;
+  var seedEl=document.getElementById('final-seeded');
+  var useSeeds=seedEl?!!seedEl.checked:false;
   var cz=S.zones.filter(function(z){return z.cat===cat;});
   if(!cz.length){document.getElementById('bracket-display').innerHTML='<div class="card"><div class="empty"><p>No hay zonas para esa categoria</p></div></div>';return;}
+
+  // Orden global "Opcion A": todos los 1ros de zona (en orden de zona),
+  // despues todos los 2dos de zona, y asi sucesivamente hasta cn.
   var classified=[];
-  cz.forEach(function(z){getStandings(z).slice(0,cn).forEach(function(s,rank){classified.push({player:s.player,zona:z.num+1,rank:rank+1});});});
-  S.bracket[cat]={rounds:buildRounds(classified)};
+  for(var r=1;r<=cn;r++){
+    cz.forEach(function(z){
+      var st=getStandings(z);
+      if(st.length>=r)classified.push({player:st[r-1].player,zona:z.num+1,rank:r});
+    });
+  }
+  if(!classified.length){document.getElementById('bracket-display').innerHTML='<div class="card"><div class="empty"><p>No hay clasificados para esa categoria</p></div></div>';return;}
+
+  var total=classified.length;
+  var bracketSize=Math.pow(2,Math.ceil(Math.log2(Math.max(total,2))));
+  var numByes=bracketSize-total;
+  var priority=seedPriorityTable(bracketSize);
+  var slots=new Array(bracketSize).fill(null);
+
+  if(useSeeds){
+    // Rankeados = solo 1ro y 2do de cada zona (rank<=2), en el orden global.
+    // Si cn>2, el 3ro/4to de zona cae directo al pool de no rankeados.
+    var seeded=classified.filter(function(c){return c.rank<=2;});
+    var unseeded=classified.filter(function(c){return c.rank>2;});
+    seeded.forEach(function(c,idx){slots[priority[idx]-1]=c;});
+    var freePositions=priority.slice(seeded.length);
+    var shuffledUnseeded=shuffleArray(unseeded);
+    shuffledUnseeded.forEach(function(c,idx){slots[freePositions[idx]-1]=c;});
+    // Las posiciones libres que sobren quedan en null -> bye, sin regla aparte.
+  }else{
+    // Sin cabezas de serie: las primeras numByes posiciones de la tabla de
+    // prioridad quedan vacias (reparte los byes parejo por todo el cuadro),
+    // el resto se llena con todos los clasificados sorteados al azar.
+    var byePositions=priority.slice(0,numByes);
+    var byeSet={};byePositions.forEach(function(p){byeSet[p]=true;});
+    var fillPositions=priority.filter(function(p){return !byeSet[p];});
+    var shuffledAll=shuffleArray(classified);
+    fillPositions.forEach(function(p,idx){slots[p-1]=shuffledAll[idx];});
+  }
+
+  S.bracket[cat]={rounds:buildRounds(slots),seeded:useSeeds,totalClasificados:total,byes:numByes};
   renderBracket(cat);updateMetrics();
 }
 function renderBracket(cat){
   var w=document.getElementById('bracket-display');
   var b=S.bracket[cat];if(!b){if(w)w.innerHTML='';return;}
   var champ=getChamp(b.rounds);
-  if(w)w.innerHTML='<div class="card">'+makeBracketHTML(b.rounds,cat,false)+champBox(champ,false)+'</div>';
+  var infoTag=b.seeded?'<span class="tag tag-amber">&#x1F3C5; Con cabezas de serie</span>':'<span class="tag tag-blue">Sorteo libre</span>';
+  var meta=(b.totalClasificados!=null)?'<span style="font-size:12px;color:var(--text-muted);">'+b.totalClasificados+' clasificados'+(b.byes?' &middot; '+b.byes+' bye'+(b.byes>1?'s':''):'')+'</span>':'';
+  if(w)w.innerHTML='<div class="card">'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">'
+    +infoTag+meta+'</div>'
+    +makeBracketHTML(b.rounds,cat,false)+champBox(champ,false)+'</div>';
 }
 function generateRelampago(){
   var cat=document.getElementById('rl-cat').value;
