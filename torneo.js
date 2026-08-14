@@ -959,9 +959,35 @@ function commitBracketSetScore(storeKey,ri,mi,si){
   
 function buildRounds(seeds){
   var size=Math.pow(2,Math.ceil(Math.log2(Math.max(seeds.length,2))));
-  while(seeds.length<size)seeds.push(null);
+  var n=seeds.length;
+  var numByes=size-n;
+  // Distribuir BYEs en posiciones espejadas (estilo torneo oficial)
+  // Las posiciones de BYE se insertan intercaladas para que queden
+  // distribuidas en distintas partes de la llave
+  var positioned=new Array(size).fill(null);
+  // Primero colocar seeds en posiciones usando patron serpiente
+  // para que los BYEs queden distribuidos uniformemente
+  var byePositions=[];
+  if(numByes>0){
+    // Calcular posiciones de BYEs: distribuidas simétricamente
+    var step=size/numByes;
+    for(var b=0;b<numByes;b++){
+      var pos=Math.round(b*step+step/2)-1;
+      byePositions.push(pos);
+    }
+  }
+  // Llenar posiciones: BYE donde corresponde, seeds en el resto
+  var si=0;
+  for(var i=0;i<size;i++){
+    if(byePositions.indexOf(i)>=0){
+      positioned[i]=null; // BYE
+    } else {
+      positioned[i]=seeds[si]||null;
+      si++;
+    }
+  }
   var rounds=[];
-  var cur=seeds.map(function(c){return{player:c?c.player:null,zona:c?c.zona:null,isBye:!c};});
+  var cur=positioned.map(function(c){return{player:c?c.player:null,zona:c?c.zona:null,isBye:!c};});
   while(cur.length>1){
     var round=[];
     for(var i=0;i<cur.length;i+=2){
