@@ -232,8 +232,13 @@ tbody tr:hover td{background:var(--bg)}
     <div class="card">
       <h3>Cuadro eliminatorio &mdash; Clasico</h3>
       <div class="form-row">
-        <div class="form-group" style="max-width:200px;"><label>Categoria</label><select id="final-cat"><option value="">Seleccionar...</option></select></div>
-        <div class="form-group" style="max-width:200px;"><label>Clasificados por zona</label><input id="clasif-count" type="number" min="1" max="8" value="2"/></div>
+       <div class="form-group" style="max-width:200px;"><label>Categoria</label><select id="final-cat"><option value="">Seleccionar...</option></select></div>
+       <div class="form-group" style="max-width:200px;"><label>Clasificados por zona</label><input id="clasif-count" type="number" min="1" max="8" value="2"/></div>
+    <div class="form-group" style="justify-content:flex-end;">
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;">
+    <input type="checkbox" id="final-seeded"> Usar cabezas de serie (1&ordm; y 2&ordm; de cada zona)
+  </label>
+</div>
         <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="generateBracket()">Generar llave</button></div>
       </div>
       <p style="font-size:12px;color:var(--text-muted);">Clic en &#x270F; para cargar resultado. Clic en nombre para marcar ganador.</p>
