@@ -991,34 +991,26 @@ function advanceBracket(storeKey,ri,mi,w){
   var store=isRl?S.rlBracket:S.bracket;
   var b=store[key];if(!b)return;
   var match=b.rounds[ri][mi];if(match.auto)return;
-  match.winner=match.winner===w?null:w;
+  // Solo togglear si el mismo ganador ya estaba; si es diferente, pisar directo
+  if(match.winner===w){match.winner=null;}else{match.winner=w;}
   if(ri+1<b.rounds.length){
     var nm=Math.floor(mi/2),isF=mi%2===0;
     var next=b.rounds[ri+1][nm];
-    var src=match.winner?(match.winner===1?match.p1:match.p2):{player:null,zona:null,isBye:false};
-    if(isF)next.p1={player:src.player,zona:src.zona,isBye:false};
-    else next.p2={player:src.player,zona:src.zona,isBye:false};
-    // Recalcular auto del siguiente partido considerando BYEs
-    var op=isF?next.p2:next.p1;
-    if(op.isBye&&next.p1.player){
-      next.winner=isF?1:2;next.auto=true;
-    } else if(op.isBye&&next.p2.player){
-      next.winner=isF?2:1;next.auto=true;
-    } else {
-      next.winner=null;next.auto=false;
+    var src=match.winner?(match.winner===1?match.p1:match.p2):null;
+    // Preservar el jugador que llegó por BYE en el slot opuesto
+    if(isF){
+      next.p1=src?{player:src.player,zona:src.zona,isBye:false}:(next.p1&&next.p1.player?next.p1:{player:null,zona:null,isBye:false});
+    }else{
+      next.p2=src?{player:src.player,zona:src.zona,isBye:false}:(next.p2&&next.p2.player?next.p2:{player:null,zona:null,isBye:false});
     }
+    next.winner=null;next.auto=false;
+    // Limpiar rondas posteriores solo en la rama afectada
     for(var rr=ri+2;rr<b.rounds.length;rr++){
       var nmi=Math.floor(nm/Math.pow(2,rr-ri-1));
-      if(b.rounds[rr]&&b.rounds[rr][nmi]){b.rounds[rr][nmi].winner=null;b.rounds[rr][nmi].auto=false;}
-    }
-    // Si el siguiente partido es auto (BYE), propagar el avance
-    if(next.auto&&next.winner&&ri+2<b.rounds.length){
-      var nm2=Math.floor(nm/2),isF2=nm%2===0;
-      var next2=b.rounds[ri+2][nm2];
-      var src2=next.winner===1?next.p1:next.p2;
-      if(isF2)next2.p1={player:src2.player,zona:src2.zona,isBye:false};
-      else next2.p2={player:src2.player,zona:src2.zona,isBye:false};
-      next2.winner=null;next2.auto=false;
+      if(b.rounds[rr]&&b.rounds[rr][nmi]){
+        b.rounds[rr][nmi].winner=null;b.rounds[rr][nmi].auto=false;
+        // No borrar jugadores que llegaron por otra rama
+      }
     }
   }
   if(isRl)renderRLBracket(key);else renderBracket(key);
