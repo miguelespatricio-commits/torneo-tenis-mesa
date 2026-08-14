@@ -154,6 +154,47 @@ function togglePago(pid){
   var p=S.players.find(function(x){return x.id===pid;});
   if(p){p.pago=!p.pago;renderPlayers();renderCajaSingles();}
 }
+function editPlayer(id){
+  var p=S.players.find(function(x){return x.id===id;});if(!p)return;
+  var catOpts=S.categories.map(function(c){return'<option value="'+c.id+'"'+(c.id===p.cat?' selected':'')+'>'+c.nombre+'</option>';}).join('');
+  var fields=p.type==='dobles'
+    ?'<div class="form-group"><label>Jugador 1</label><input id="edit-j1" type="text" value="'+p.j1+'"/></div>'
+     +'<div class="form-group"><label>Jugador 2</label><input id="edit-j2" type="text" value="'+p.j2+'"/></div>'
+     +'<div class="form-group"><label>Nombre pareja</label><input id="edit-dn" type="text" value="'+(p.displayName||'')+'"/></div>'
+    :'<div class="form-group"><label>Nombre</label><input id="edit-nombre" type="text" value="'+(p.nombre||'')+'"/></div>'
+     +'<div class="form-group"><label>Apellido</label><input id="edit-apellido" type="text" value="'+(p.apellido||'')+'"/></div>';
+  var modal='<div id="edit-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;">'
+    +'<div style="background:var(--surface);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
+    +'<h3 style="margin-bottom:16px;">Editar '+(p.type==='dobles'?'pareja':'jugador')+'</h3>'
+    +'<div style="display:flex;flex-direction:column;gap:12px;">'
+    +fields
+    +'<div class="form-group"><label>Club</label><input id="edit-club" type="text" value="'+(p.club||'')+'"/></div>'
+    +'<div class="form-group"><label>Categoria</label><select id="edit-cat">'+catOpts+'</select></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">'
+    +'<button class="btn" onclick="closeEditModal()">Cancelar</button>'
+    +'<button class="btn btn-primary" onclick="saveEditPlayer(\''+id+'\')">Guardar</button>'
+    +'</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',modal);
+}
+function saveEditPlayer(id){
+  var p=S.players.find(function(x){return x.id===id;});if(!p)return;
+  if(p.type==='dobles'){
+    p.j1=document.getElementById('edit-j1').value.trim()||p.j1;
+    p.j2=document.getElementById('edit-j2').value.trim()||p.j2;
+    p.displayName=document.getElementById('edit-dn').value.trim()||p.j1+' / '+p.j2;
+  }else{
+    p.nombre=document.getElementById('edit-nombre').value.trim()||p.nombre;
+    p.apellido=document.getElementById('edit-apellido').value.trim();
+  }
+  p.club=document.getElementById('edit-club').value.trim();
+  p.cat=document.getElementById('edit-cat').value;
+  closeEditModal();
+  renderPlayers();updateSelects();
+}
+function closeEditModal(){
+  var m=document.getElementById('edit-modal');if(m)m.remove();
+}
 function renderPlayers(){
   var w=document.getElementById('players-wrap');
   document.getElementById('player-count').textContent=S.players.length;
@@ -179,7 +220,11 @@ function renderPlayers(){
       +'<td style="color:var(--text-muted)">'+(p.club||'&mdash;')+'</td>'
       +'<td><span class="tag '+catCol(p.cat)+'">'+catNm(p.cat)+'</span></td>'
       +'<td>'+zl+'</td>'+pagoCell
-      +'<td><button class="btn btn-sm btn-danger" onclick="removePlayer(\''+p.id+'\')">&#x2715;</button></td></tr>';
+      +'<td style="display:flex;gap:4px;">'
+      +'<button class="btn btn-sm" onclick="editPlayer(\''+p.id+'\')">&#x270F;</button>'
+      +'<button class="btn btn-sm btn-danger" onclick="removePlayer(\''+p.id+'\')">&#x2715;</button>'
+      +'</td></tr>';
+      
   }).join('');
   w.innerHTML='<table><thead><tr><th>#</th><th>Jugador/Pareja</th><th>Tipo</th><th>Club</th><th>Categoria</th><th>Zona</th>'+pagoHdr+'<th></th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
