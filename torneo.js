@@ -1029,15 +1029,13 @@ function makeBracketHTML(rounds,storeKey,isRl){
   var wClass=isRl?' rl-winner':'';
   var setsToWin=parseInt(S.config.sets||2);
   var totalSets=setsToWin*2-1;
-  // Altura fija de cada match-box (aprox px)
   var MATCH_H=62;
-  // Total de slots en ronda 1 determina la altura total del bracket
   var baseSlots=rounds[0]?rounds[0].length:1;
   var totalH=baseSlots*MATCH_H+(baseSlots-1)*8;
   var h='<div class="bracket-scroll"><div class="rounds-wrap" style="align-items:stretch;">';
+  var panels='';
   rounds.forEach(function(round,ri){
-    var slotCount=round.length;
-    var slotH=totalH/slotCount;
+    var slotH=totalH/round.length;
     h+='<div class="round-col"><div class="round-title">'+rn(ri)+'</div>'
       +'<div style="display:flex;flex-direction:column;height:'+totalH+'px;">';
     round.forEach(function(match,mi){
@@ -1074,13 +1072,19 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +(aWin?'<span style="color:var(--success);font-size:10px;">&#x2713;</span>':bWin2?'<span style="color:var(--success);font-size:10px;margin-left:10px;">&#x2713;</span>':hasErr?'<span style="color:var(--danger);font-size:9px;">&#x2717;</span>':'')
           +'</div>';
       }
-      var entryPanel=canPlay
-        ?'<div id="'+entryId+'" style="display:none;padding:8px 10px;border-top:1px solid var(--border);background:var(--bg);">'
+      // Panel flotante acumulado aparte
+      if(canPlay){
+        panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
+          +'z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);'
+          +'padding:16px;min-width:240px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
+          +'<span style="font-size:12px;font-weight:600;">'+n1+' vs '+n2+'</span>'
+          +'<button class="btn btn-sm btn-ghost" onclick="toggleBracketEntry(\''+entryId+'\')">&#x2715;</button>'
+          +'</div>'
           +setRowsHTML
           +(res.done?'<div style="color:var(--success);font-size:11px;font-weight:500;margin-top:4px;">&#x1F3C6; '+(w===1?n1:n2)+' ('+res.w1+'&ndash;'+res.w2+')</div>':'')
-          +'</div>'
-        :'';
-      // Cada slot ocupa slotH px, el match-box se centra dentro con flex
+          +'</div>';
+      }
       h+='<div style="height:'+slotH+'px;display:flex;align-items:center;justify-content:center;">'
         +'<div class="match-box" style="width:100%;margin:0 8px;">'
         +'<div class="match-player'+(w===1?' winner'+wClass:'')+(b1?' bye':'')+'"'
@@ -1094,11 +1098,12 @@ function makeBracketHTML(rounds,storeKey,isRl){
         +'</span></div>'
         +'<div class="match-player'+(w===2?' winner'+wClass:'')+(b2?' bye':'')+'">'
         +'<span>'+n2+z2+'</span>'+(w===2?'<span style="color:var(--accent);font-size:11px;">&#x2713;</span>':'')
-        +'</div>'+entryPanel+'</div></div>';
+        +'</div></div></div>';
     });
     h+='</div></div>';
   });
-  h+='</div></div>';return h;
+  h+='</div></div>'+panels;
+  return h;
 }
 
 // ═══════════════════ SIEMBRA: TABLA DE PRIORIDAD ═══════════════════
