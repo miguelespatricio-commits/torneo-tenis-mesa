@@ -271,6 +271,71 @@ function toggleEqPago(eqId){
   var eq=S.equipos.find(function(e){return e.id===eqId;});
   if(eq){eq.pago=!eq.pago;renderEquipos();renderCajaEquipos();}
 }
+function editEquipo(id){
+  var eq=S.equipos.find(function(e){return e.id===id;});if(!eq)return;
+  var catOpts=S.categories.map(function(c){return'<option value="'+c.id+'"'+(c.id===eq.cat?' selected':'')+'>'+c.nombre+'</option>';}).join('');
+  var modal='<div id="edit-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;">'
+    +'<div style="background:var(--surface);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
+    +'<h3 style="margin-bottom:16px;">Editar equipo</h3>'
+    +'<div style="display:flex;flex-direction:column;gap:12px;">'
+    +'<div class="form-group"><label>Nombre del equipo</label><input id="edit-eq-nombre" type="text" value="'+eq.nombre+'"/></div>'
+    +'<div class="form-group"><label>Categoria</label><select id="edit-eq-cat">'+catOpts+'</select></div>'
+    +'<div>'
+    +'<div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Jugadores</div>'
+    +'<div id="edit-eq-members" style="display:flex;flex-direction:column;gap:6px;">'
+    +eq.jugadores.map(function(j){
+      return '<div style="display:flex;gap:6px;align-items:center;">'
+        +'<input type="text" value="'+j.nombre+'" id="edit-mbr-'+j.id+'" style="flex:1;"/>'
+        +'<button class="btn btn-sm btn-danger" onclick="removeEditMember(\''+id+'\',\''+j.id+'\')">&#x2715;</button>'
+        +'</div>';
+    }).join('')
+    +'</div>'
+    +'<div style="display:flex;gap:6px;margin-top:8px;">'
+    +'<input id="edit-new-member" type="text" placeholder="Agregar jugador..." style="flex:1;"/>'
+    +'<button class="btn btn-sm btn-primary" onclick="addEditMember(\''+id+'\')">+</button>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">'
+    +'<button class="btn" onclick="closeEditModal()">Cancelar</button>'
+    +'<button class="btn btn-primary" onclick="saveEditEquipo(\''+id+'\')">Guardar</button>'
+    +'</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',modal);
+}
+function saveEditEquipo(id){
+  var eq=S.equipos.find(function(e){return e.id===id;});if(!eq)return;
+  eq.nombre=document.getElementById('edit-eq-nombre').value.trim()||eq.nombre;
+  eq.cat=document.getElementById('edit-eq-cat').value;
+  eq.jugadores.forEach(function(j){
+    var inp=document.getElementById('edit-mbr-'+j.id);
+    if(inp&&inp.value.trim())j.nombre=inp.value.trim();
+  });
+  closeEditModal();
+  renderEquipos();updateSelects();
+}
+function addEditMember(eqId){
+  var eq=S.equipos.find(function(e){return e.id===eqId;});if(!eq)return;
+  var inp=document.getElementById('edit-new-member');
+  var n=inp.value.trim();if(!n)return;
+  eq.jugadores.push({id:uid(),nombre:n});
+  inp.value='';
+  // Refrescar lista de jugadores dentro del modal
+  var wrap=document.getElementById('edit-eq-members');
+  if(wrap){
+    var j=eq.jugadores[eq.jugadores.length-1];
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;gap:6px;align-items:center;';
+    row.innerHTML='<input type="text" value="'+j.nombre+'" id="edit-mbr-'+j.id+'" style="flex:1;"/>'
+      +'<button class="btn btn-sm btn-danger" onclick="removeEditMember(\''+eqId+'\',\''+j.id+'\')">&#x2715;</button>';
+    wrap.appendChild(row);
+  }
+}
+function removeEditMember(eqId,mId){
+  var eq=S.equipos.find(function(e){return e.id===eqId;});if(!eq)return;
+  eq.jugadores=eq.jugadores.filter(function(j){return j.id!==mId;});
+  var row=document.getElementById('edit-mbr-'+mId);
+  if(row&&row.parentNode)row.parentNode.remove();
+}
 function eqPagoBtn(eq){
   if(!S.config.inscripcion)return'';
   var me=S.config['monto-equipo']&&parseFloat(S.config['monto-equipo']);
@@ -299,7 +364,8 @@ function renderEquipos(){
         +'<table style="font-size:12px;margin-bottom:10px;"><tbody>'+members+'</tbody></table>'
         +'<div style="display:flex;gap:6px;">'
         +'<input id="mbr-'+eq.id+'" type="text" placeholder="Agregar integrante..." style="flex:1;" onkeydown="if(event.key===\'Enter\')addMember(\''+eq.id+'\')"/>'
-        +'<button class="btn btn-sm btn-primary" onclick="addMember(\''+eq.id+'\')">+</button></div></div>';
+        +'<button class="btn btn-sm" onclick="editEquipo(\''+eq.id+'\')">&#x270F;</button>'
+        +'<button class="btn btn-sm btn-danger" onclick="removeEquipo(\''+eq.id+'\')">&#x2715;</button></div>'
     }).join('');
     return '<div class="zone-section">'
       +'<div class="zone-section-title"><span class="tag '+catCol(cat)+'">'+catNm(cat)+'</span></div>'
