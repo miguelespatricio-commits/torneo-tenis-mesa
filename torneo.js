@@ -998,13 +998,29 @@ function advanceBracket(storeKey,ri,mi,w){
     var src=match.winner?(match.winner===1?match.p1:match.p2):{player:null,zona:null,isBye:false};
     if(isF)next.p1={player:src.player,zona:src.zona,isBye:false};
     else next.p2={player:src.player,zona:src.zona,isBye:false};
-    next.winner=null;next.auto=false;
+    // Recalcular auto del siguiente partido considerando BYEs
+    var op=isF?next.p2:next.p1;
+    if(op.isBye&&next.p1.player){
+      next.winner=isF?1:2;next.auto=true;
+    } else if(op.isBye&&next.p2.player){
+      next.winner=isF?2:1;next.auto=true;
+    } else {
+      next.winner=null;next.auto=false;
+    }
     for(var rr=ri+2;rr<b.rounds.length;rr++){
       var nmi=Math.floor(nm/Math.pow(2,rr-ri-1));
       if(b.rounds[rr]&&b.rounds[rr][nmi]){b.rounds[rr][nmi].winner=null;b.rounds[rr][nmi].auto=false;}
     }
+    // Si el siguiente partido es auto (BYE), propagar el avance
+    if(next.auto&&next.winner&&ri+2<b.rounds.length){
+      var nm2=Math.floor(nm/2),isF2=nm%2===0;
+      var next2=b.rounds[ri+2][nm2];
+      var src2=next.winner===1?next.p1:next.p2;
+      if(isF2)next2.p1={player:src2.player,zona:src2.zona,isBye:false};
+      else next2.p2={player:src2.player,zona:src2.zona,isBye:false};
+      next2.winner=null;next2.auto=false;
+    }
   }
-  // Re-renderizar (el panel queda cerrado tras cargar el resultado)
   if(isRl)renderRLBracket(key);else renderBracket(key);
 }
 
