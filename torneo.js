@@ -364,8 +364,10 @@ function renderEquipos(){
         +'<table style="font-size:12px;margin-bottom:10px;"><tbody>'+members+'</tbody></table>'
         +'<div style="display:flex;gap:6px;">'
         +'<input id="mbr-'+eq.id+'" type="text" placeholder="Agregar integrante..." style="flex:1;" onkeydown="if(event.key===\'Enter\')addMember(\''+eq.id+'\')"/>'
-        +'<button class="btn btn-sm" onclick="editEquipo(\''+eq.id+'\')">&#x270F;</button>'
-        +'<button class="btn btn-sm btn-danger" onclick="removeEquipo(\''+eq.id+'\')">&#x2715;</button></div>'
+        +'<div style="display:flex;gap:4px;">'
+        +'<button class="btn btn-sm btn-ghost" onclick="editEquipo(\''+eq.id+'\')" style="color:var(--text-muted);font-size:11px;">&#x270F; editar</button>'
+        +'<button class="btn btn-sm btn-danger" onclick="removeEquipo(\''+eq.id+'\')">&#x2715;</button>'
+        +'</div></div>'
     }).join('');
     return '<div class="zone-section">'
       +'<div class="zone-section-title"><span class="tag '+catCol(cat)+'">'+catNm(cat)+'</span></div>'
