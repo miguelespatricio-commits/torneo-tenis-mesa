@@ -604,7 +604,17 @@ function commitSetScore(mid,si,inputEl){
   var setsToWin=parseInt(S.config.sets||2);
   var totalSets=setsToWin*2-1;
   var res2=matchResult(mv.sets,setsToWin);
-  if(res2.done){renderResults();return;}
+  if(res2.done){
+  renderResults();
+  // Actualizar llave si existe para esa categoria
+  var zDone=S.zones.find(function(z){
+    return z.players&&z.players.some(function(pid){
+      return mid.indexOf(z.id)===0;
+    });
+  });
+  if(zDone&&S.bracket[zDone.cat])autoUpdateBracket(zDone.cat);
+  return;
+}
   var nextSi=setsToDisplay(mv.sets,setsToWin,totalSets)-1;
   renderResults();
   setTimeout(function(){
@@ -1158,6 +1168,25 @@ function zonaCompleta(z){
   }}
   return true;
 }
+function zonaCompleta(z){
+  var setsToWin=parseInt(S.config.sets||2);
+  if(z.mode==='equipos'){
+    var eqs=z.players.map(function(pid){return S.equipos.find(function(e){return e.id===pid;});}).filter(Boolean);
+    for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
+      var em=S.equipoMatches[midKey(z.id,eqs[i].id,eqs[j].id)]||{partidos:[]};
+      if(!eqMatchResult(em).done)return false;
+    }}
+    return eqs.length>0;
+  }
+  var ps=z.players.map(function(pid){return S.players.find(function(p){return p.id===pid;});}).filter(Boolean);
+  if(ps.length<2)return false;
+  for(var i=0;i<ps.length;i++){for(var j=i+1;j<ps.length;j++){
+    var mv=S.matches[midKey(z.id,ps[i].id,ps[j].id)];
+    if(!mv||!matchResult(mv.sets||[],setsToWin).done)return false;
+  }}
+  return true;
+}
+
 function generateBracket(){
   var cat=document.getElementById('final-cat').value;
   if(!cat){alert('Selecciona una categoria');return;}
@@ -1167,73 +1196,98 @@ function generateBracket(){
   var cz=S.zones.filter(function(z){return z.cat===cat;});
   if(!cz.length){document.getElementById('bracket-display').innerHTML='<div class="card"><div class="empty"><p>No hay zonas para esa categoria</p></div></div>';return;}
 
-  var incompletas=cz.filter(function(z){return!zonaCompleta(z);});
-  var completas=cz.filter(function(z){return zonaCompleta(z);});
+  // Tamaño total basado en TODAS las zonas, completas o no
+  var totalEsperado=cz.length*cn;
+  var bracketSize=Math.pow(2,Math.ceil(Math.log2(Math.max(totalEsperado,2))));
+  var numByes=bracketSize-totalEsperado;
+  var priority=seedPriorityTable(bracketSize);
 
-  if(!completas.length){
-    document.getElementById('bracket-display').innerHTML='<div class="card"><div class="alert alert-warn">&#x26A0; Ninguna zona de esta categoria tiene todos sus partidos terminados. Completa al menos una zona para generar la llave.</div></div>';
-    return;
-  }
-
-  if(incompletas.length){
-    var nombresInc=incompletas.map(function(z){return'Zona '+(z.num+1);}).join(', ');
-    document.getElementById('bracket-display').innerHTML='<div class="card"><div class="alert alert-warn" style="margin-bottom:12px;">&#x26A0; '+nombresInc+' todavia no tienen todos los partidos terminados. Solo clasifican jugadores de zonas completas.</div></div>';
-    // No retorna — sigue con las zonas completas
-  }
-
-  var classified=[];
+  // Construir slots con posicion fija por zona y rank
+  // Orden: 1ro zona1, 1ro zona2... 2do zona1, 2do zona2...
+  var slotAssignments=[];
   for(var r=1;r<=cn;r++){
-    completas.forEach(function(z){
-      var st=getStandings(z);
-      if(st.length>=r)classified.push({player:st[r-1].player,zona:z.num+1,rank:r});
+    cz.forEach(function(z){
+      slotAssignments.push({zona:z,rank:r});
     });
   }
-  if(!classified.length){document.getElementById('bracket-display').innerHTML='<div class="card"><div class="empty"><p>No hay clasificados para esa categoria</p></div></div>';return;}
+  // BYEs en primeras numByes posiciones de priority, clasificados en el resto
+  // pero con posicion FIJA (no aleatorio) para poder actualizar despues
+  var byeSet={};
+  priority.slice(0,numByes).forEach(function(p){byeSet[p]=true;});
+  var fillPositions=priority.filter(function(p){return !byeSet[p];});
 
-  var total=classified.length;
-  var bracketSize=Math.pow(2,Math.ceil(Math.log2(Math.max(total,2))));
-  var numByes=bracketSize-total;
-  var priority=seedPriorityTable(bracketSize);
+  // Guardar el mapa de asignaciones para poder actualizar luego
+  var slotMap=[];
+  fillPositions.forEach(function(pos,idx){
+    slotMap.push({pos:pos,zona:slotAssignments[idx].zona.id,rank:slotAssignments[idx].rank});
+  });
+
+  // Llenar slots con los jugadores disponibles (zonas completas)
   var slots=new Array(bracketSize).fill(null);
+  slotMap.forEach(function(sm){
+    var z=cz.find(function(z){return z.id===sm.zona;});
+    if(z&&zonaCompleta(z)){
+      var st=getStandings(z);
+      if(st.length>=sm.rank){
+        slots[sm.pos-1]={player:st[sm.rank-1].player,zona:z.num+1,rank:sm.rank};
+      }
+    }
+  });
 
-  if(useSeeds){
-    var seeded=classified.filter(function(c){return c.rank<=2;});
-    var unseeded=classified.filter(function(c){return c.rank>2;});
-    seeded.forEach(function(c,idx){slots[priority[idx]-1]=c;});
-    var freePositions=priority.slice(seeded.length);
-    var shuffledUnseeded=shuffleArray(unseeded);
-    shuffledUnseeded.forEach(function(c,idx){slots[freePositions[idx]-1]=c;});
-  }else{
-    var byePositions=priority.slice(0,numByes);
-    var byeSet={};byePositions.forEach(function(p){byeSet[p]=true;});
-    var fillPositions=priority.filter(function(p){return !byeSet[p];});
-    var shuffledAll=shuffleArray(classified);
-    fillPositions.forEach(function(p,idx){slots[p-1]=shuffledAll[idx];});
-  }
+  var completadas=cz.filter(function(z){return zonaCompleta(z);}).length;
+  var pendientes=cz.length-completadas;
 
-  S.bracket[cat]={rounds:buildRounds(slots),seeded:useSeeds,totalClasificados:total,byes:numByes};
-  // Si habia aviso de zonas incompletas, mantenerlo arriba del bracket
-  var w=document.getElementById('bracket-display');
-  var champ=getChamp(S.bracket[cat].rounds);
-  var infoTag=useSeeds?'<span class="tag tag-amber">&#x1F3C5; Con cabezas de serie</span>':'<span class="tag tag-blue">Sorteo libre</span>';
-  var meta='<span style="font-size:12px;color:var(--text-muted);">'+total+' clasificados'+(numByes?' &middot; '+numByes+' bye'+(numByes>1?'s':''):'')+'</span>';
-  var warn=incompletas.length?w.querySelector('.alert-warn')?w.innerHTML.match(/<div class="alert[^>]*>[\s\S]*?<\/div>/)?w.innerHTML.split('</div>')[0]+'</div>':'' :'':'';
-  var warnHTML=incompletas.length
-    ?'<div class="alert alert-warn" style="margin-bottom:12px;">&#x26A0; '+incompletas.map(function(z){return'Zona '+(z.num+1);}).join(', ')+' sin terminar. Solo clasifican zonas completas.</div>'
-    :'';
-  w.innerHTML='<div class="card">'+warnHTML
-    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">'
-    +infoTag+meta+'</div>'
-    +makeBracketHTML(S.bracket[cat].rounds,cat,false)+champBox(champ,false)+'</div>';
-  updateMetrics();
+  S.bracket[cat]={
+    rounds:buildRounds(slots),
+    seeded:useSeeds,
+    totalClasificados:totalEsperado,
+    byes:numByes,
+    slotMap:slotMap,
+    cn:cn,
+    pendientes:pendientes
+  };
+  renderBracket(cat);updateMetrics();
+}
+
+// Llamar esto cada vez que se completa un partido de zona
+function autoUpdateBracket(cat){
+  var b=S.bracket[cat];if(!b||!b.slotMap)return;
+  var cn=b.cn||2;
+  var cz=S.zones.filter(function(z){return z.cat===cat;});
+  var bracketSize=b.rounds[0]?b.rounds[0].length*2:2;
+  // Reconstruir slots respetando posiciones fijas
+  var slots=new Array(bracketSize).fill(null);
+  b.slotMap.forEach(function(sm){
+    var z=cz.find(function(z){return z.id===sm.zona;});
+    if(z&&zonaCompleta(z)){
+      var st=getStandings(z);
+      if(st.length>=sm.rank){
+        slots[sm.pos-1]={player:st[sm.rank-1].player,zona:z.num+1,rank:sm.rank};
+      }
+    }
+  });
+  // Reconstruir rounds preservando scores ya cargados
+  var newRounds=buildRounds(slots);
+  // Copiar winners ya jugados
+  newRounds.forEach(function(round,ri){
+    round.forEach(function(match,mi){
+      var old=b.rounds[ri]&&b.rounds[ri][mi];
+      if(old&&old.winner&&!match.auto)match.winner=old.winner;
+    });
+  });
+  var pendientes=cz.filter(function(z){return!zonaCompleta(z);}).length;
+  b.rounds=newRounds;
+  b.pendientes=pendientes;
+  renderBracket(cat);
 }
 function renderBracket(cat){
   var w=document.getElementById('bracket-display');
   var b=S.bracket[cat];if(!b){if(w)w.innerHTML='';return;}
   var champ=getChamp(b.rounds);
   var infoTag=b.seeded?'<span class="tag tag-amber">&#x1F3C5; Con cabezas de serie</span>':'<span class="tag tag-blue">Sorteo libre</span>';
-  var meta=(b.totalClasificados!=null)?'<span style="font-size:12px;color:var(--text-muted);">'+b.totalClasificados+' clasificados'+(b.byes?' &middot; '+b.byes+' bye'+(b.byes>1?'s':''):'')+'</span>':'';
-  if(w)w.innerHTML='<div class="card">'
+  var meta='<span style="font-size:12px;color:var(--text-muted);">'+b.totalClasificados+' clasificados'+(b.byes?' &middot; '+b.byes+' bye'+(b.byes>1?'s':''):'')+'</span>';
+  var warnHTML=b.pendientes?'<div class="alert alert-warn" style="margin-bottom:12px;">&#x26A0; '+b.pendientes+' zona'+(b.pendientes>1?'s':'')+' pendiente'+(b.pendientes>1?'s':'')+' de completar. Los slots se llenan automaticamente al terminar cada zona.</div>':'';
+  if(w)w.innerHTML='<div class="card">'+warnHTML
     +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">'
     +infoTag+meta+'</div>'
     +makeBracketHTML(b.rounds,cat,false)+champBox(champ,false)+'</div>';
