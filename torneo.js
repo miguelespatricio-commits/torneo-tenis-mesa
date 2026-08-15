@@ -1141,6 +1141,23 @@ function shuffleArray(arr){
 }
 
 // ═══════════════════ GENERATE BRACKETS ═══════════════════
+function zonaCompleta(z){
+  var setsToWin=parseInt(S.config.sets||2);
+  if(z.mode==='equipos'){
+    var eqs=z.players.map(function(pid){return S.equipos.find(function(e){return e.id===pid;});}).filter(Boolean);
+    for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
+      var em=S.equipoMatches[midKey(z.id,eqs[i].id,eqs[j].id)]||{partidos:[]};
+      if(!eqMatchResult(em).done)return false;
+    }}
+    return true;
+  }
+  var ps=z.players.map(function(pid){return S.players.find(function(p){return p.id===pid;});}).filter(Boolean);
+  for(var i=0;i<ps.length;i++){for(var j=i+1;j<ps.length;j++){
+    var mv=S.matches[midKey(z.id,ps[i].id,ps[j].id)];
+    if(!mv||!matchResult(mv.sets||[],setsToWin).done)return false;
+  }}
+  return true;
+}
 function generateBracket(){
   var cat=document.getElementById('final-cat').value;
   if(!cat){alert('Selecciona una categoria');return;}
@@ -1150,11 +1167,23 @@ function generateBracket(){
   var cz=S.zones.filter(function(z){return z.cat===cat;});
   if(!cz.length){document.getElementById('bracket-display').innerHTML='<div class="card"><div class="empty"><p>No hay zonas para esa categoria</p></div></div>';return;}
 
-  // Orden global "Opcion A": todos los 1ros de zona (en orden de zona),
-  // despues todos los 2dos de zona, y asi sucesivamente hasta cn.
+  var incompletas=cz.filter(function(z){return!zonaCompleta(z);});
+  var completas=cz.filter(function(z){return zonaCompleta(z);});
+
+  if(!completas.length){
+    document.getElementById('bracket-display').innerHTML='<div class="card"><div class="alert alert-warn">&#x26A0; Ninguna zona de esta categoria tiene todos sus partidos terminados. Completa al menos una zona para generar la llave.</div></div>';
+    return;
+  }
+
+  if(incompletas.length){
+    var nombresInc=incompletas.map(function(z){return'Zona '+(z.num+1);}).join(', ');
+    document.getElementById('bracket-display').innerHTML='<div class="card"><div class="alert alert-warn" style="margin-bottom:12px;">&#x26A0; '+nombresInc+' todavia no tienen todos los partidos terminados. Solo clasifican jugadores de zonas completas.</div></div>';
+    // No retorna — sigue con las zonas completas
+  }
+
   var classified=[];
   for(var r=1;r<=cn;r++){
-    cz.forEach(function(z){
+    completas.forEach(function(z){
       var st=getStandings(z);
       if(st.length>=r)classified.push({player:st[r-1].player,zona:z.num+1,rank:r});
     });
@@ -1168,19 +1197,13 @@ function generateBracket(){
   var slots=new Array(bracketSize).fill(null);
 
   if(useSeeds){
-    // Rankeados = solo 1ro y 2do de cada zona (rank<=2), en el orden global.
-    // Si cn>2, el 3ro/4to de zona cae directo al pool de no rankeados.
     var seeded=classified.filter(function(c){return c.rank<=2;});
     var unseeded=classified.filter(function(c){return c.rank>2;});
     seeded.forEach(function(c,idx){slots[priority[idx]-1]=c;});
     var freePositions=priority.slice(seeded.length);
     var shuffledUnseeded=shuffleArray(unseeded);
     shuffledUnseeded.forEach(function(c,idx){slots[freePositions[idx]-1]=c;});
-    // Las posiciones libres que sobren quedan en null -> bye, sin regla aparte.
   }else{
-    // Sin cabezas de serie: las primeras numByes posiciones de la tabla de
-    // prioridad quedan vacias (reparte los byes parejo por todo el cuadro),
-    // el resto se llena con todos los clasificados sorteados al azar.
     var byePositions=priority.slice(0,numByes);
     var byeSet={};byePositions.forEach(function(p){byeSet[p]=true;});
     var fillPositions=priority.filter(function(p){return !byeSet[p];});
@@ -1189,7 +1212,20 @@ function generateBracket(){
   }
 
   S.bracket[cat]={rounds:buildRounds(slots),seeded:useSeeds,totalClasificados:total,byes:numByes};
-  renderBracket(cat);updateMetrics();
+  // Si habia aviso de zonas incompletas, mantenerlo arriba del bracket
+  var w=document.getElementById('bracket-display');
+  var champ=getChamp(S.bracket[cat].rounds);
+  var infoTag=useSeeds?'<span class="tag tag-amber">&#x1F3C5; Con cabezas de serie</span>':'<span class="tag tag-blue">Sorteo libre</span>';
+  var meta='<span style="font-size:12px;color:var(--text-muted);">'+total+' clasificados'+(numByes?' &middot; '+numByes+' bye'+(numByes>1?'s':''):'')+'</span>';
+  var warn=incompletas.length?w.querySelector('.alert-warn')?w.innerHTML.match(/<div class="alert[^>]*>[\s\S]*?<\/div>/)?w.innerHTML.split('</div>')[0]+'</div>':'' :'':'';
+  var warnHTML=incompletas.length
+    ?'<div class="alert alert-warn" style="margin-bottom:12px;">&#x26A0; '+incompletas.map(function(z){return'Zona '+(z.num+1);}).join(', ')+' sin terminar. Solo clasifican zonas completas.</div>'
+    :'';
+  w.innerHTML='<div class="card">'+warnHTML
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">'
+    +infoTag+meta+'</div>'
+    +makeBracketHTML(S.bracket[cat].rounds,cat,false)+champBox(champ,false)+'</div>';
+  updateMetrics();
 }
 function renderBracket(cat){
   var w=document.getElementById('bracket-display');
