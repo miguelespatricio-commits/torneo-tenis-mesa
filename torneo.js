@@ -1085,8 +1085,8 @@ function makeBracketHTML(rounds,storeKey,isRl){
         var s=sets[si]||{a:'',b:''};
         var sw=calcSetWinner(s.a,s.b);var err=validateSet(s.a,s.b);
         var aWin=sw===1&&!err,bWin2=sw===2&&!err,hasErr=!!err&&s.a!==''&&s.b!=='';
-        setRowsHTML+='<div class="set-row" data-si="'+si+'" style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:nowrap;">'
-        +'<span style="font-size:10px;color:var(--text-muted);width:28px;">S'+(si+1)+'</span>'
+        setRowsHTML+='<div class="set-row" data-si="'+si+'" style="display:flex;align-items:center;gap:6px;margin-bottom:6px;width:100%;justify-content:center;">'
+          +'<span style="font-size:10px;color:var(--text-muted);min-width:24px;">S'+(si+1)+'</span>'
           +'<input type="number" min="0" value="'+(s.a||'')+'" placeholder="0" data-mid="'+bKey+'" data-si="'+si+'" data-field="a"'
           +' style="width:38px;height:26px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':aWin?'var(--success)':bWin2?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'a\',this.value,this)"'
@@ -1107,8 +1107,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
         var roundBg=isRl?'var(--lightning-bg)':'var(--accent-bg)';
         panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
           +'z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);'
-          +'padding:0;min-width:280px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden;">'
-          // Header con color de ronda
+          +'padding:0;min-width:300px;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'          // Header con color de ronda
           +'<div style="background:'+roundBg+';border-bottom:1px solid var(--border);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">'
           +'<div>'
           +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:'+roundColor+';margin-bottom:2px;">'+roundName+'</div>'
@@ -1117,8 +1116,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="toggleBracketEntry(\''+entryId+'\')">&#x2715;</button>'
           +'</div>'
           // Body con sets
-          +'<div style="padding:12px 14px;overflow:visible;">'
-          +setRowsHTML
+          +'<div style="padding:12px 16px;display:flex;flex-direction:column;align-items:center;">'         +setRowsHTML
           +(res.done?'<div style="color:var(--success);font-size:12px;font-weight:500;margin-top:8px;padding:6px 10px;background:var(--success-bg);border-radius:var(--radius);">&#x1F3C6; '+(w===1?n1:n2)+' ('+res.w1+'&ndash;'+res.w2+')</div>':'')
           +'</div>'
           +'</div>';
