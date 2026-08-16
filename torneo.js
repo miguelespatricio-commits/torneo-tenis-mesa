@@ -952,13 +952,13 @@ function commitBracketSetScore(storeKey,ri,mi,si){
   row.style.cssText='display:flex;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;';
   row.innerHTML='<span style="font-size:10px;color:var(--text-muted);width:28px;">S'+(nextSi+1)+'</span>'
     +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="a"'
-    +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
+    +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield;"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'a\',this.value,this)"'
     +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
     +' onkeydown="if(event.key===\'Tab\'&&this.value!==\'\'){event.preventDefault();var nb=this.parentNode.querySelectorAll(\'input\')[1];if(nb){nb.focus();nb.select();}}"/>'
     +'<span style="color:var(--text-muted);font-size:11px;">&ndash;</span>'
     +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="b"'
-    +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
+    +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield;"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this)"'
     +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
     +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this);commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+');}"/>'
@@ -1107,7 +1107,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
         var roundBg=isRl?'var(--lightning-bg)':'var(--accent-bg)';
         panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
           +'z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);'
-          +'padding:0;min-width:300px;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'          // Header con color de ronda
+          +'padding:0;min-width:300px;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:visible;">'+'padding:0;min-width:300px;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'          // Header con color de ronda
           +'<div style="background:'+roundBg+';border-bottom:1px solid var(--border);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">'
           +'<div>'
           +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:'+roundColor+';margin-bottom:2px;">'+roundName+'</div>'
