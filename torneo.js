@@ -1105,9 +1105,9 @@ function makeBracketHTML(rounds,storeKey,isRl){
         var roundName=rn(ri);
         var roundColor=isRl?'var(--lightning)':'var(--accent)';
         var roundBg=isRl?'var(--lightning-bg)':'var(--accent-bg)';
-        panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
+          panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
           +'z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);'
-          +'padding:0;min-width:300px;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:visible;">'+'padding:0;min-width:300px;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'          // Header con color de ronda
+          +'min-width:300px;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'      // Header con color de ronda
           +'<div style="background:'+roundBg+';border-bottom:1px solid var(--border);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">'
           +'<div>'
           +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:'+roundColor+';margin-bottom:2px;">'+roundName+'</div>'
@@ -1116,7 +1116,8 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="toggleBracketEntry(\''+entryId+'\')">&#x2715;</button>'
           +'</div>'
           // Body con sets
-          +'<div style="padding:12px 16px;display:flex;flex-direction:column;align-items:center;">'         +setRowsHTML
+          +'<div style="padding:12px 16px;display:flex;flex-direction:column;align-items:center;">'        
+          +setRowsHTML
           +(res.done?'<div style="color:var(--success);font-size:12px;font-weight:500;margin-top:8px;padding:6px 10px;background:var(--success-bg);border-radius:var(--radius);">&#x1F3C6; '+(w===1?n1:n2)+' ('+res.w1+'&ndash;'+res.w2+')</div>':'')
           +'</div>'
           +'</div>';
