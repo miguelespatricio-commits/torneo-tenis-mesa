@@ -1117,7 +1117,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="toggleBracketEntry(\''+entryId+'\')">&#x2715;</button>'
           +'</div>'
           // Body con sets
-          +'<div style="padding:14px 16px;">'
+          +'<div style="padding:12px 14px;overflow:visible;">'
           +setRowsHTML
           +(res.done?'<div style="color:var(--success);font-size:12px;font-weight:500;margin-top:8px;padding:6px 10px;background:var(--success-bg);border-radius:var(--radius);">&#x1F3C6; '+(w===1?n1:n2)+' ('+res.w1+'&ndash;'+res.w2+')</div>':'')
           +'</div>'
