@@ -1092,15 +1092,25 @@ function makeBracketHTML(rounds,storeKey,isRl){
       }
       // Panel flotante acumulado aparte
       if(canPlay){
+        var roundName=rn(ri);
+        var roundColor=isRl?'var(--lightning)':'var(--accent)';
+        var roundBg=isRl?'var(--lightning-bg)':'var(--accent-bg)';
         panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
           +'z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);'
-          +'padding:16px;min-width:240px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'
-          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
-          +'<span style="font-size:12px;font-weight:600;">'+n1+' vs '+n2+'</span>'
-          +'<button class="btn btn-sm btn-ghost" onclick="toggleBracketEntry(\''+entryId+'\')">&#x2715;</button>'
+          +'padding:0;min-width:260px;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden;">'
+          // Header con color de ronda
+          +'<div style="background:'+roundBg+';border-bottom:1px solid var(--border);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">'
+          +'<div>'
+          +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:'+roundColor+';margin-bottom:2px;">'+roundName+'</div>'
+          +'<div style="font-size:13px;font-weight:600;color:var(--text);">'+n1+' <span style="color:var(--text-muted);font-weight:400;">vs</span> '+n2+'</div>'
           +'</div>'
+          +'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="toggleBracketEntry(\''+entryId+'\')">&#x2715;</button>'
+          +'</div>'
+          // Body con sets
+          +'<div style="padding:14px 16px;">'
           +setRowsHTML
-          +(res.done?'<div style="color:var(--success);font-size:11px;font-weight:500;margin-top:4px;">&#x1F3C6; '+(w===1?n1:n2)+' ('+res.w1+'&ndash;'+res.w2+')</div>':'')
+          +(res.done?'<div style="color:var(--success);font-size:12px;font-weight:500;margin-top:8px;padding:6px 10px;background:var(--success-bg);border-radius:var(--radius);">&#x1F3C6; '+(w===1?n1:n2)+' ('+res.w1+'&ndash;'+res.w2+')</div>':'')
+          +'</div>'
           +'</div>';
       }
       h+='<div style="height:'+slotH+'px;display:flex;align-items:center;justify-content:center;">'
