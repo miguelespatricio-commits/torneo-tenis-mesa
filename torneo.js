@@ -1075,8 +1075,8 @@ function makeBracketHTML(rounds,storeKey,isRl){
         var s=sets[si]||{a:'',b:''};
         var sw=calcSetWinner(s.a,s.b);var err=validateSet(s.a,s.b);
         var aWin=sw===1&&!err,bWin2=sw===2&&!err,hasErr=!!err&&s.a!==''&&s.b!=='';
-        setRowsHTML+='<div class="set-row" data-si="'+si+'" style="display:flex;align-items:center;gap:4px;margin-bottom:4px;">'
-          +'<span style="font-size:10px;color:var(--text-muted);width:28px;">S'+(si+1)+'</span>'
+        setRowsHTML+='<div class="set-row" data-si="'+si+'" style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:nowrap;">'
+        +'<span style="font-size:10px;color:var(--text-muted);width:28px;">S'+(si+1)+'</span>'
           +'<input type="number" min="0" value="'+(s.a||'')+'" placeholder="0" data-mid="'+bKey+'" data-si="'+si+'" data-field="a"'
           +' style="width:38px;height:26px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':aWin?'var(--success)':bWin2?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'a\',this.value,this)"'
@@ -1097,7 +1097,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
         var roundBg=isRl?'var(--lightning-bg)':'var(--accent-bg)';
         panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
           +'z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);'
-          +'padding:0;min-width:260px;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden;">'
+          +'padding:0;min-width:280px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden;">'
           // Header con color de ronda
           +'<div style="background:'+roundBg+';border-bottom:1px solid var(--border);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">'
           +'<div>'

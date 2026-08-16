@@ -33,6 +33,9 @@ main{max-width:1140px;margin:0 auto;padding:24px 16px}
 .form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
 .form-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:120px}
 .form-group label{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+input[type=number]{-moz-appearance:textfield;}
 input[type=text],input[type=number],input[type=date],select{height:36px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--surface);color:var(--text);width:100%;transition:border-color .15s}
 input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,78,216,.1)}
 .btn{height:36px;padding:0 16px;border:1px solid var(--border-dark);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
