@@ -971,16 +971,27 @@ function buildRounds(seeds){
   var size=Math.pow(2,Math.ceil(Math.log2(Math.max(seeds.length,2))));
   while(seeds.length<size)seeds.push(null);
   var rounds=[];
-  var cur=seeds.map(function(c){return{player:c?c.player:null,zona:c?c.zona:null,isBye:!c};});
+  var cur=seeds.map(function(c){
+    if(!c)return{player:null,zona:null,isBye:true};
+    if(c.pending)return{player:null,zona:null,isBye:false,pending:true};
+    return{player:c.player,zona:c.zona,isBye:false};
+  });
   while(cur.length>1){
     var round=[];
     for(var i=0;i<cur.length;i+=2){
       var p1=cur[i],p2=cur[i+1]||{player:null,zona:null,isBye:true};
-      var auto=p1.isBye||p2.isBye;
+      var auto=(p1.isBye||p2.isBye)&&!p1.pending&&!p2.pending;
       round.push({p1:p1,p2:p2,winner:auto?(p1.isBye?2:1):null,auto:auto});
     }
     rounds.push(round);
-    cur=round.map(function(m){return{player:m.winner===1?m.p1.player:m.winner===2?m.p2.player:null,zona:m.winner===1?m.p1.zona:m.winner===2?m.p2.zona:null,isBye:false};});
+    cur=round.map(function(m){
+      if(m.auto&&m.winner){
+        var ww=m.winner===1?m.p1:m.p2;
+        return{player:ww.player,zona:ww.zona,isBye:false};
+      }
+      if(m.p1.pending||m.p2.pending)return{player:null,zona:null,isBye:false,pending:true};
+      return{player:null,zona:null,isBye:false};
+    });
   }
   for(var ri=0;ri<rounds.length-1;ri++){
     rounds[ri].forEach(function(match,mi){
@@ -1057,14 +1068,13 @@ function makeBracketHTML(rounds,storeKey,isRl){
     h+='<div class="round-col"><div class="round-title">'+rn(ri)+'</div>'
       +'<div style="display:flex;flex-direction:column;height:'+totalH+'px;">';
     round.forEach(function(match,mi){
-      var n1=match.p1.player?dn(match.p1.player):match.p1.isBye?'BYE':'&mdash;';
-      var n2=match.p2.player?dn(match.p2.player):match.p2.isBye?'BYE':'&mdash;';
+      var n1=match.p1.player?dn(match.p1.player):match.p1.isBye?'BYE':match.p1.pending?'En espera...':'&mdash;';
+      var n2=match.p2.player?dn(match.p2.player):match.p2.isBye?'BYE':match.p2.pending?'En espera...':'&mdash;';
       var z1=match.p1.zona?' <span class="tag tag-blue" style="font-size:10px;">Z'+match.p1.zona+'</span>':'';
       var z2=match.p2.zona?' <span class="tag tag-teal" style="font-size:10px;">Z'+match.p2.zona+'</span>':'';
       var w=match.winner;
       var b1=match.p1.isBye,b2=match.p2.isBye;
-      var canPlay=match.p1.player&&match.p2.player&&!b1&&!b2;
-      var entryId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
+      var canPlay=match.p1.player&&match.p2.player&&!b1&&!b2&&!match.p1.pending&&!match.p2.pending;      var entryId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
       var bKey=bScoreKey(storeKey,ri,mi);
       var sets=getBracketSets(storeKey,ri,mi);
       var res=sets.length?matchResult(sets,setsToWin):{done:false,w1:0,w2:0};
@@ -1161,23 +1171,6 @@ function shuffleArray(arr){
 }
 
 // ═══════════════════ GENERATE BRACKETS ═══════════════════
-function zonaCompleta(z){
-  var setsToWin=parseInt(S.config.sets||2);
-  if(z.mode==='equipos'){
-    var eqs=z.players.map(function(pid){return S.equipos.find(function(e){return e.id===pid;});}).filter(Boolean);
-    for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
-      var em=S.equipoMatches[midKey(z.id,eqs[i].id,eqs[j].id)]||{partidos:[]};
-      if(!eqMatchResult(em).done)return false;
-    }}
-    return true;
-  }
-  var ps=z.players.map(function(pid){return S.players.find(function(p){return p.id===pid;});}).filter(Boolean);
-  for(var i=0;i<ps.length;i++){for(var j=i+1;j<ps.length;j++){
-    var mv=S.matches[midKey(z.id,ps[i].id,ps[j].id)];
-    if(!mv||!matchResult(mv.sets||[],setsToWin).done)return false;
-  }}
-  return true;
-}
 function zonaCompleta(z){
   var setsToWin=parseInt(S.config.sets||2);
   if(z.mode==='equipos'){
