@@ -35,8 +35,7 @@ main{max-width:1140px;margin:0 auto;padding:24px 16px}
 .form-group label{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
-input[type=number]{-moz-appearance:textfield;}
-input[type=text],input[type=number],input[type=date],select{height:36px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--surface);color:var(--text);width:100%;transition:border-color .15s}
+input[type=text],input[type=number],input[type=date],select{height:36px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:var(--surface);color:var(--text);width:100%;transition:border-color .15s;-moz-appearance:textfield;appearance:textfield;}
 input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,78,216,.1)}
 .btn{height:36px;padding:0 16px;border:1px solid var(--border-dark);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
 .btn:hover{background:var(--bg)}
@@ -85,7 +84,7 @@ tbody tr:hover td{background:var(--bg)}
 .team-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .eq-match{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
 .eq-match-header{background:var(--bg);padding:8px 12px;font-size:12px;font-weight:600;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.set-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.set-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:nowrap;}
 @media(max-width:600px){main{padding:16px 12px}.grid4{grid-template-columns:repeat(2,1fr)}.form-row{flex-direction:column}}
 </style>
 </head>
