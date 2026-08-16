@@ -1196,52 +1196,44 @@ function generateBracket(){
   var cz=S.zones.filter(function(z){return z.cat===cat;});
   if(!cz.length){document.getElementById('bracket-display').innerHTML='<div class="card"><div class="empty"><p>No hay zonas para esa categoria</p></div></div>';return;}
 
-  // Tamaño total basado en TODAS las zonas, completas o no
   var totalEsperado=cz.length*cn;
   var bracketSize=Math.pow(2,Math.ceil(Math.log2(Math.max(totalEsperado,2))));
   var numByes=bracketSize-totalEsperado;
   var priority=seedPriorityTable(bracketSize);
 
-  // Construir slots con posicion fija por zona y rank
-  // Orden: 1ro zona1, 1ro zona2... 2do zona1, 2do zona2...
   var slotAssignments=[];
   for(var r=1;r<=cn;r++){
-    cz.forEach(function(z){
-      slotAssignments.push({zona:z,rank:r});
-    });
+    cz.forEach(function(z){slotAssignments.push({zonaId:z.id,rank:r});});
   }
-  // BYEs en primeras numByes posiciones de priority, clasificados en el resto
-  // pero con posicion FIJA (no aleatorio) para poder actualizar despues
   var byeSet={};
   priority.slice(0,numByes).forEach(function(p){byeSet[p]=true;});
-  var fillPositions=priority.filter(function(p){return !byeSet[p];});
+  var fillPositions=priority.filter(function(p){return!byeSet[p];});
 
-  // Guardar el mapa de asignaciones para poder actualizar luego
   var slotMap=[];
   fillPositions.forEach(function(pos,idx){
-    slotMap.push({pos:pos,zona:slotAssignments[idx].zona.id,rank:slotAssignments[idx].rank});
+    slotMap.push({pos:pos,zonaId:slotAssignments[idx].zonaId,rank:slotAssignments[idx].rank});
   });
 
-  // Llenar slots con los jugadores disponibles (zonas completas)
   var slots=new Array(bracketSize).fill(null);
   slotMap.forEach(function(sm){
-    var z=cz.find(function(z){return z.id===sm.zona;});
+    var z=cz.find(function(z){return z.id===sm.zonaId;});
     if(z&&zonaCompleta(z)){
       var st=getStandings(z);
-      if(st.length>=sm.rank){
-        slots[sm.pos-1]={player:st[sm.rank-1].player,zona:z.num+1,rank:sm.rank};
-      }
+      if(st.length>=sm.rank)slots[sm.pos-1]={player:st[sm.rank-1].player,zona:z.num+1,rank:sm.rank};
+      else slots[sm.pos-1]={pending:true};
+    }else{
+      slots[sm.pos-1]={pending:true};
     }
   });
 
-  var completadas=cz.filter(function(z){return zonaCompleta(z);}).length;
-  var pendientes=cz.length-completadas;
+  var pendientes=cz.filter(function(z){return!zonaCompleta(z);}).length;
 
   S.bracket[cat]={
     rounds:buildRounds(slots),
     seeded:useSeeds,
     totalClasificados:totalEsperado,
     byes:numByes,
+    bracketSize:bracketSize,
     slotMap:slotMap,
     cn:cn,
     pendientes:pendientes
@@ -1249,35 +1241,36 @@ function generateBracket(){
   renderBracket(cat);updateMetrics();
 }
 
-// Llamar esto cada vez que se completa un partido de zona
 function autoUpdateBracket(cat){
   var b=S.bracket[cat];if(!b||!b.slotMap)return;
-  var cn=b.cn||2;
   var cz=S.zones.filter(function(z){return z.cat===cat;});
-  var bracketSize=b.rounds[0]?b.rounds[0].length*2:2;
-  // Reconstruir slots respetando posiciones fijas
+  var bracketSize=b.bracketSize;
+
   var slots=new Array(bracketSize).fill(null);
   b.slotMap.forEach(function(sm){
-    var z=cz.find(function(z){return z.id===sm.zona;});
+    var z=cz.find(function(z){return z.id===sm.zonaId;});
     if(z&&zonaCompleta(z)){
       var st=getStandings(z);
-      if(st.length>=sm.rank){
-        slots[sm.pos-1]={player:st[sm.rank-1].player,zona:z.num+1,rank:sm.rank};
-      }
+      if(st.length>=sm.rank)slots[sm.pos-1]={player:st[sm.rank-1].player,zona:z.num+1,rank:sm.rank};
+      else slots[sm.pos-1]={pending:true};
+    }else{
+      slots[sm.pos-1]={pending:true};
     }
   });
-  // Reconstruir rounds preservando scores ya cargados
+
   var newRounds=buildRounds(slots);
-  // Copiar winners ya jugados
+
   newRounds.forEach(function(round,ri){
     round.forEach(function(match,mi){
       var old=b.rounds[ri]&&b.rounds[ri][mi];
-      if(old&&old.winner&&!match.auto)match.winner=old.winner;
+      if(old&&old.winner!=null&&!match.auto&&!match.p1.pending&&!match.p2.pending){
+        match.winner=old.winner;
+      }
     });
   });
-  var pendientes=cz.filter(function(z){return!zonaCompleta(z);}).length;
+
   b.rounds=newRounds;
-  b.pendientes=pendientes;
+  b.pendientes=cz.filter(function(z){return!zonaCompleta(z);}).length;
   renderBracket(cat);
 }
 function renderBracket(cat){
