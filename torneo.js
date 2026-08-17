@@ -949,8 +949,8 @@ function commitBracketSetScore(storeKey,ri,mi,si){
   var row=document.createElement('div');
   row.className='set-row';
   row.dataset.si=nextSi;
-  row.style.cssText='display:flex;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap;';
-  row.innerHTML='<span style="font-size:10px;color:var(--text-muted);width:28px;">S'+(nextSi+1)+'</span>'
+  row.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:6px;justify-content:center;';
+  row.innerHTML='<span style="font-size:10px;color:var(--text-muted);min-width:24px;text-align:right;">S'+(nextSi+1)+'</span>'
     +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="a"'
     +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield;"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'a\',this.value,this)"'
