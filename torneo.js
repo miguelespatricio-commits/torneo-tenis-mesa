@@ -915,6 +915,13 @@ function renderRanking(){
 function bScoreKey(storeKey,ri,mi){return storeKey+'|'+ri+'|'+mi;}
 function getBracketSets(storeKey,ri,mi){return(S.bracketScores[bScoreKey(storeKey,ri,mi)]||{sets:[]}).sets;}
 function toggleBracketEntry(id){var el=document.getElementById(id);if(!el)return;el.style.display=el.style.display==='none'?'block':'none';}
+function focusBracketField(inputEl, field){
+  var grid=inputEl.closest('.bkt-grid');
+  if(!grid)return;
+  var si=inputEl.dataset.si;
+  var target=grid.querySelector('input[data-si="'+si+'"][data-field="'+field+'"]');
+  if(target){target.focus();target.select();}
+}
 function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
   var k=bScoreKey(storeKey,ri,mi);
   if(!S.bracketScores[k])S.bracketScores[k]={sets:[]};
@@ -941,29 +948,32 @@ function commitBracketSetScore(storeKey,ri,mi,si){
     advanceBracket(storeKey,ri,mi,winner);
     return;
   }
-  // Set completo pero partido no terminado: agregar fila siguiente set
   var panel=document.getElementById(panelId);
   if(!panel)return;
+  var grid=panel.querySelector('.bkt-grid');
+  if(!grid)return;
   var nextSi=si+1;
-  if(panel.querySelector('input[data-si="'+nextSi+'"]'))return;
-  var row=document.createElement('div');
-  row.className='set-row';
-  row.dataset.si=nextSi;
-    row.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:6px;justify-content:center;';
-    row.innerHTML='<span style="font-size:10px;color:var(--text-muted);width:36px;text-align:center;opacity:0;">Set '+(nextSi+1)+'</span>'
+  if(grid.querySelector('input[data-si="'+nextSi+'"]'))return;
+  var cellsHTML='<div style="font-size:10px;color:var(--text-muted);font-weight:600;">SET '+(nextSi+1)+'</div>'
+    +'<div style="display:flex;align-items:center;justify-content:center;gap:4px;">'
     +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="a"'
-    +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield;"'
+    +' style="width:44px;height:28px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center;background:var(--surface);color:var(--text);"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'a\',this.value,this)"'
     +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
-    +' onkeydown="if(event.key===\'Tab\'&&this.value!==\'\'){event.preventDefault();var nb=this.parentNode.querySelectorAll(\'input\')[1];if(nb){nb.focus();nb.select();}}"/>'
-    +'<span style="color:var(--text-muted);font-size:11px;">&ndash;</span>'
+    +' onkeydown="if(event.key===\'Tab\'&&this.value!==\'\'){event.preventDefault();focusBracketField(this,\'b\');}"/>'
+    +'</div>'
+    +'<div style="text-align:center;color:var(--text-muted);font-size:12px;">&ndash;</div>'
+    +'<div style="display:flex;align-items:center;justify-content:center;gap:4px;">'
     +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="b"'
-    +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield;"'
+    +' style="width:44px;height:28px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center;background:var(--surface);color:var(--text);"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this)"'
     +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
     +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this);commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+');}"/>'
-  panel.appendChild(row);
-  var newInp=row.querySelector('input[type=number]');
+    +'</div>';
+  var tmp=document.createElement('div');
+  tmp.innerHTML=cellsHTML;
+  while(tmp.firstChild){grid.appendChild(tmp.firstChild);}
+  var newInp=grid.querySelector('input[data-si="'+nextSi+'"][data-field="a"]');
   if(newInp){newInp.focus();newInp.select();}
 }
   
@@ -1074,7 +1084,8 @@ function makeBracketHTML(rounds,storeKey,isRl){
       var z2=match.p2.zona?' <span class="tag tag-teal" style="font-size:10px;">Z'+match.p2.zona+'</span>':'';
       var w=match.winner;
       var b1=match.p1.isBye,b2=match.p2.isBye;
-      var canPlay=match.p1.player&&match.p2.player&&!b1&&!b2&&!match.p1.pending&&!match.p2.pending;      var entryId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
+      var canPlay=match.p1.player&&match.p2.player&&!b1&&!b2&&!match.p1.pending&&!match.p2.pending;
+      var entryId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
       var bKey=bScoreKey(storeKey,ri,mi);
       var sets=getBracketSets(storeKey,ri,mi);
       var res=sets.length?matchResult(sets,setsToWin):{done:false,w1:0,w2:0};
@@ -1085,41 +1096,49 @@ function makeBracketHTML(rounds,storeKey,isRl){
         var s=sets[si]||{a:'',b:''};
         var sw=calcSetWinner(s.a,s.b);var err=validateSet(s.a,s.b);
         var aWin=sw===1&&!err,bWin2=sw===2&&!err,hasErr=!!err&&s.a!==''&&s.b!=='';
-          setRowsHTML+='<div class="set-row" data-si="'+si+'" style="display:flex;align-items:center;gap:6px;margin-bottom:6px;justify-content:center;">'
-          +'<span style="font-size:10px;color:var(--text-muted);width:36px;text-align:center;opacity:0;">Set '+(si+1)+'</span>'
+        var labelCell='<div style="font-size:10px;color:var(--text-muted);font-weight:600;">SET '+(si+1)+'</div>';
+        var dashCell='<div style="text-align:center;color:var(--text-muted);font-size:12px;">&ndash;</div>';
+        var cellA='<div style="display:flex;align-items:center;justify-content:center;gap:4px;">'
           +'<input type="number" min="0" value="'+(s.a||'')+'" placeholder="0" data-mid="'+bKey+'" data-si="'+si+'" data-field="a"'
-          +' style="width:38px;height:26px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':aWin?'var(--success)':bWin2?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
+          +' style="width:44px;height:28px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':aWin?'var(--success)':bWin2?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:13px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'a\',this.value,this)"'
-          +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+')"/>'
-          +'<span style="color:var(--text-muted);font-size:11px;">&ndash;</span>'
+          +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+')"'
+          +' onkeydown="if(event.key===\'Tab\'&&this.value!==\'\'){event.preventDefault();focusBracketField(this,\'b\');}"/>'
+          +(aWin?'<span style="color:var(--success);font-size:10px;">&#x2713;</span>':'')
+          +'</div>';
+        var cellB='<div style="display:flex;align-items:center;justify-content:center;gap:4px;">'
           +'<input type="number" min="0" value="'+(s.b||'')+'" placeholder="0" data-mid="'+bKey+'" data-si="'+si+'" data-field="b"'
-          +' style="width:38px;height:26px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':bWin2?'var(--success)':aWin?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
+          +' style="width:44px;height:28px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':bWin2?'var(--success)':aWin?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:13px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'b\',this.value,this)"'
           +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+')"'
           +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'b\',this.value,this);commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+');}"/>'
-          +(aWin?'<span style="color:var(--success);font-size:10px;">&#x2713;</span>':bWin2?'<span style="color:var(--success);font-size:10px;margin-left:10px;">&#x2713;</span>':hasErr?'<span style="color:var(--danger);font-size:9px;">&#x2717;</span>':'')
+          +(bWin2?'<span style="color:var(--success);font-size:10px;">&#x2713;</span>':hasErr?'<span style="color:var(--danger);font-size:9px;">&#x2717;</span>':'')
           +'</div>';
+        setRowsHTML+=labelCell+cellA+dashCell+cellB;
       }
-      // Panel flotante acumulado aparte
+      var winnerHTML=res.done?'<div style="grid-column:1/5;text-align:center;color:var(--success);font-size:12px;font-weight:500;margin-top:4px;padding:6px 10px;background:var(--success-bg);border-radius:var(--radius);">&#x1F3C6; '+(w===1?n1:n2)+' ('+res.w1+'&ndash;'+res.w2+')</div>':'';
       if(canPlay){
         var roundName=rn(ri);
         var roundColor=isRl?'var(--lightning)':'var(--accent)';
         var roundBg=isRl?'var(--lightning-bg)':'var(--accent-bg)';
-          panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
+        panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
           +'z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);'
           +'min-width:360px;max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'
-          // Header con color de ronda
-          +'<div style="background:'+roundBg+';border-bottom:1px solid var(--border);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;min-width:0;">'
-          +'<div style="flex:1;">'
-          +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:'+roundColor+';margin-bottom:2px;">'+roundName+'</div>'
-          +'<div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;justify-content:center;gap:6px;"><span>'+n1+'</span><span style="color:var(--text-muted);font-weight:400;font-size:11px;">vs</span><span>'+n2+'</span></div>'
+          +'<div style="background:'+roundBg+';border-bottom:1px solid var(--border);padding:10px 16px;">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+          +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:'+roundColor+';">'+roundName+'</div>'
+          +'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="toggleBracketEntry(\''+entryId+'\')" style="margin:-4px -4px 0 0;">&#x2715;</button>'
           +'</div>'
-          +'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="toggleBracketEntry(\''+entryId+'\')">&#x2715;</button>'
+          +'<div style="display:grid;grid-template-columns:44px 1fr 28px 1fr;column-gap:6px;align-items:center;">'
+          +'<div></div>'
+          +'<div style="text-align:center;font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+n1+'</div>'
+          +'<div style="text-align:center;font-size:11px;color:var(--text-muted);font-weight:400;">vs</div>'
+          +'<div style="text-align:center;font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+n2+'</div>'
           +'</div>'
-          // Body con sets
-          +'<div style="padding:12px 16px;display:flex;flex-direction:column;align-items:center;">'        
+          +'</div>'
+          +'<div class="bkt-grid" style="display:grid;grid-template-columns:44px 1fr 28px 1fr;row-gap:8px;column-gap:6px;align-items:center;padding:14px 16px 16px;">'
           +setRowsHTML
-          +(res.done?'<div style="color:var(--success);font-size:12px;font-weight:500;margin-top:8px;padding:6px 10px;background:var(--success-bg);border-radius:var(--radius);">&#x1F3C6; '+(w===1?n1:n2)+' ('+res.w1+'&ndash;'+res.w2+')</div>':'')
+          +winnerHTML
           +'</div>'
           +'</div>';
       }
