@@ -950,7 +950,7 @@ function commitBracketSetScore(storeKey,ri,mi,si){
   row.className='set-row';
   row.dataset.si=nextSi;
   row.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:6px;justify-content:center;';
-  row.innerHTML='<span style="font-size:10px;color:var(--text-muted);min-width:24px;text-align:right;">S'+(nextSi+1)+'</span>'
+    row.innerHTML='<span style="font-size:10px;color:var(--text-muted);min-width:32px;text-align:right;">Set '+(nextSi+1)+'</span>'
     +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="a"'
     +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield;"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'a\',this.value,this)"'
@@ -1086,7 +1086,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
         var sw=calcSetWinner(s.a,s.b);var err=validateSet(s.a,s.b);
         var aWin=sw===1&&!err,bWin2=sw===2&&!err,hasErr=!!err&&s.a!==''&&s.b!=='';
         setRowsHTML+='<div class="set-row" data-si="'+si+'" style="display:flex;align-items:center;gap:6px;margin-bottom:6px;width:100%;justify-content:center;">'
-          +'<span style="font-size:10px;color:var(--text-muted);min-width:24px;">S'+(si+1)+'</span>'
+          +'<span style="font-size:10px;color:var(--text-muted);min-width:32px;text-align:right;">Set '+(si+1)+'</span>'
           +'<input type="number" min="0" value="'+(s.a||'')+'" placeholder="0" data-mid="'+bKey+'" data-si="'+si+'" data-field="a"'
           +' style="width:38px;height:26px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':aWin?'var(--success)':bWin2?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'a\',this.value,this)"'
@@ -1109,9 +1109,9 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +'z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);'
           +'min-width:300px;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'      // Header con color de ronda
           +'<div style="background:'+roundBg+';border-bottom:1px solid var(--border);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">'
-          +'<div>'
+          +'<div style="flex:1;">'
           +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:'+roundColor+';margin-bottom:2px;">'+roundName+'</div>'
-          +'<div style="font-size:13px;font-weight:600;color:var(--text);">'+n1+' <span style="color:var(--text-muted);font-weight:400;">vs</span> '+n2+'</div>'
+          +'<div style="font-size:13px;font-weight:600;color:var(--text);text-align:center;">'+n1+' <span style="color:var(--text-muted);font-weight:400;">vs</span> '+n2+'</div>'
           +'</div>'
           +'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="toggleBracketEntry(\''+entryId+'\')">&#x2715;</button>'
           +'</div>'
