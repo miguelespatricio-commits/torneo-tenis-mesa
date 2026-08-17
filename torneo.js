@@ -1107,7 +1107,8 @@ function makeBracketHTML(rounds,storeKey,isRl){
         var roundBg=isRl?'var(--lightning-bg)':'var(--accent-bg)';
           panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
           +'z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);'
-          +'min-width:300px;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'      // Header con color de ronda
+          +'min-width:360px;max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'
+          // Header con color de ronda
           +'<div style="background:'+roundBg+';border-bottom:1px solid var(--border);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;min-width:0;">'
           +'<div style="flex:1;">'
           +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:'+roundColor+';margin-bottom:2px;">'+roundName+'</div>'
