@@ -711,9 +711,11 @@ function renderResults(){
         +'<span id="mstatus-'+m+'">'+matchStatusHTML(m)+'</span></div>'
         +entryPanel+'</div>';
     }}
+    var standingsHTML=zoneStandingsTableHTML(getStandings(z));
     return '<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">'
       +'<span class="tag '+ZCOLS[z.num%ZCOLS.length]+'">Zona '+(z.num+1)+'</span>'
       +'<span style="font-size:12px;color:var(--text-muted);">'+catNm(z.cat)+' &middot; mejor de '+totalSets+' sets &middot; a 11 puntos</span></div>'
+      +standingsHTML
       +matchCards+'</div>';
   }).join('')||'<div class="card"><div class="empty"><p>Sin partidos</p></div></div>';
 }
@@ -762,7 +764,8 @@ function renderEqZone(z){
   var html='<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">'
     +'<span class="tag '+ZCOLS[z.num%ZCOLS.length]+'">Zona '+(z.num+1)+'</span>'
     +'<span class="tag tag-orange">Equipos</span>'
-    +'<span style="font-size:12px;color:var(--text-muted);">'+catNm(z.cat)+' &middot; Singles/Dobles/Desempate</span></div>';
+    +'<span style="font-size:12px;color:var(--text-muted);">'+catNm(z.cat)+' &middot; Singles/Dobles/Desempate</span></div>'
+    +zoneStandingsTableHTML(getEqStandings(z));
   for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
     var m=midKey(z.id,eqs[i].id,eqs[j].id);
     var em=S.equipoMatches[m]||{partidos:[]};
@@ -871,6 +874,28 @@ function getEqStandings(zone){
     else{stats[eqs[j].id].pg++;stats[eqs[j].id].pts+=3;}
   }}
   return Object.values(stats).sort(function(a,b){return b.pts-a.pts||b.pg-a.pg||(b.pf-b.pc)-(a.pf-a.pc)||(b.ppf-b.ppc)-(a.ppf-a.ppc);});
+}
+function zoneStandingsTableHTML(st){
+  if(!st||!st.length)return'';
+  var rows=st.map(function(s,i){
+    var medal=i===0?'&#x1F947;':i===1?'&#x1F948;':i===2?'&#x1F949;':'';
+    var pc=['pos-1','pos-2','pos-3'][i]||'';
+    var diff=s.pf-s.pc;
+    var pdiff=(s.ppf||0)-(s.ppc||0);
+    return '<tr>'
+      +'<td><span class="pos-circle '+pc+'">'+(i+1)+'</span></td>'
+      +'<td>'+medal+' <strong>'+dn(s.player)+'</strong></td>'
+      +'<td style="text-align:center;">'+s.pf+'</td>'
+      +'<td style="text-align:center;">'+s.pc+'</td>'
+      +'<td style="text-align:center;color:'+(diff>=0?'var(--success)':'var(--danger)')+';">'+(diff>=0?'+':'')+diff+'</td>'
+      +'<td style="text-align:center;">'+s.ppf+'</td>'
+      +'<td style="text-align:center;">'+s.ppc+'</td>'
+      +'<td style="text-align:center;font-size:11px;color:var(--text-muted);">'+(pdiff>=0?'+':'')+pdiff+'</td>'
+      +'</tr>';
+  }).join('');
+  return '<div style="overflow-x:auto;margin-bottom:14px;">'
+    +'<table><thead><tr><th>#</th><th>Participante</th><th>SF</th><th>SC</th><th>Dif S.</th><th>PF</th><th>PC</th><th>Dif P.</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    +'</div>';
 }
 
 // ═══════════════════ RANKING ═══════════════════
