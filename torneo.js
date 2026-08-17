@@ -949,8 +949,8 @@ function commitBracketSetScore(storeKey,ri,mi,si){
   var row=document.createElement('div');
   row.className='set-row';
   row.dataset.si=nextSi;
-    row.style.cssText='position:relative;display:flex;align-items:center;gap:6px;margin-bottom:6px;justify-content:center;';
-    row.innerHTML='<span style="position:absolute;left:14px;font-size:10px;color:var(--text-muted);">Set '+(nextSi+1)+'</span>'
+    row.style.cssText='display:grid;grid-template-columns:60px 38px 20px 38px 20px;align-items:center;gap:4px;margin-bottom:6px;';
+    row.innerHTML='<span style="font-size:10px;color:var(--text-muted);text-align:right;padding-right:4px;">Set '+(nextSi+1)+'</span>'
     +'<input type="number" min="0" placeholder="0" data-mid="'+k+'" data-si="'+nextSi+'" data-field="a"'
     +' style="width:38px;height:26px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield;"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'a\',this.value,this)"'
@@ -1085,8 +1085,8 @@ function makeBracketHTML(rounds,storeKey,isRl){
         var s=sets[si]||{a:'',b:''};
         var sw=calcSetWinner(s.a,s.b);var err=validateSet(s.a,s.b);
         var aWin=sw===1&&!err,bWin2=sw===2&&!err,hasErr=!!err&&s.a!==''&&s.b!=='';
-          setRowsHTML+='<div class="set-row" data-si="'+si+'" style="position:relative;display:flex;align-items:center;gap:6px;margin-bottom:6px;justify-content:center;">'
-          +'<span style="position:absolute;left:14px;font-size:10px;color:var(--text-muted);">Set '+(si+1)+'</span>'
+          setRowsHTML+='<div class="set-row" data-si="'+si+'" style="display:grid;grid-template-columns:60px 38px 20px 38px 20px;align-items:center;gap:4px;margin-bottom:6px;">'
+          +'<span style="font-size:10px;color:var(--text-muted);text-align:right;padding-right:4px;">Set '+(si+1)+'</span>'
           +'<input type="number" min="0" value="'+(s.a||'')+'" placeholder="0" data-mid="'+bKey+'" data-si="'+si+'" data-field="a"'
           +' style="width:38px;height:26px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':aWin?'var(--success)':bWin2?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'a\',this.value,this)"'
