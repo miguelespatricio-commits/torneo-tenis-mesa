@@ -700,7 +700,7 @@ function renderResults(){
         +(res.done?'<div style="margin-top:8px;padding:5px 10px;background:var(--success-bg);border:1px solid #bbf7d0;border-radius:var(--radius);font-size:12px;color:var(--success);font-weight:500;">&#x1F3C6; '+winnerName+'</div>':'')
         +'</div>';
       var collapsedScore=scoreSummary?'<span style="font-size:11px;color:var(--text-muted);margin-left:8px;">'+scoreSummary+'</span>':'';
-      var winBadge=res.done?'<span class="tag tag-green" style="margin-left:6px;">&#x2713; '+res.w1+'&ndash;'+res.w2+'</span>':'';
+      var winBadge='';
       matchCards+='<div id="match-'+m+'" style="border:1px solid '+(res.done?'#bbf7d0':'var(--border)')+';border-radius:var(--radius);margin-bottom:8px;background:'+(res.done?'var(--success-bg)':'var(--surface)')+';">'
         +'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;gap:8px;" onclick="toggleMatchPanel(\''+panelId+'\')">'
         +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;">'
