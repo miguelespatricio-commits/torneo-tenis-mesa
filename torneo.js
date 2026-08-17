@@ -894,7 +894,16 @@ function zoneStandingsTableHTML(st){
       +'</tr>';
   }).join('');
   return '<div style="overflow-x:auto;margin-bottom:14px;">'
-    +'<table><thead><tr><th>#</th><th>Participante</th><th>SF</th><th>SC</th><th>Dif S.</th><th>PF</th><th>PC</th><th>Dif P.</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    +'<table><thead><tr>'
+    +'<th style="text-align:left;">#</th>'
+    +'<th style="text-align:left;">Participante</th>'
+    +'<th style="text-align:center;">SF</th>'
+    +'<th style="text-align:center;">SC</th>'
+    +'<th style="text-align:center;">Dif S.</th>'
+    +'<th style="text-align:center;">PF</th>'
+    +'<th style="text-align:center;">PC</th>'
+    +'<th style="text-align:center;">Dif P.</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table>'
     +'</div>';
 }
 
