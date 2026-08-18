@@ -801,14 +801,16 @@ function renderEqZone(z){
         hCols+='<div style="font-size:9px;color:var(--text-muted);text-align:center;font-weight:600;">S'+(si+1)+'</div>';
         var bcA=hasErr?'var(--danger)':aWin?'var(--success)':bWin2?'#fca5a5':'var(--border)';
         var bcB=hasErr?'var(--danger)':bWin2?'var(--success)':aWin?'#fca5a5':'var(--border)';
-        rA+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.a||'')+'" placeholder="0"'
+                rA+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.a||'')+'" placeholder="0"'
           +' data-eqmid="'+m+'" data-pi="'+pi+'" data-si="'+si+'" data-field="a"'
           +' style="width:40px;height:26px;padding:0 3px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
-          +' oninput="saveEqSetScore(\''+m+'\','+pi+','+si+',\'a\',this.value,this)"/></div>';
+          +' oninput="saveEqSetScore(\''+m+'\','+pi+','+si+',\'a\',this.value,this)"'
+          +' onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"/></div>';
         rB+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.b||'')+'" placeholder="0"'
           +' data-eqmid="'+m+'" data-pi="'+pi+'" data-si="'+si+'" data-field="b"'
           +' style="width:40px;height:26px;padding:0 3px;border:1px solid '+bcB+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
-          +' oninput="saveEqSetScore(\''+m+'\','+pi+','+si+',\'b\',this.value,this)"/></div>';
+          +' oninput="saveEqSetScore(\''+m+'\','+pi+','+si+',\'b\',this.value,this)"'
+          +' onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"/></div>';
       }
       var gCols='minmax(80px,110px) repeat('+stsShow+',44px)';
       partidoBlocks+='<div style="border:1px solid '+(isDecider?'var(--lightning-border)':'var(--border)')+';border-radius:var(--radius);padding:12px;margin-bottom:10px;background:'+(pres.done?(isDecider?'var(--lightning-bg)':'var(--success-bg)'):'var(--surface)')+';">'
@@ -996,7 +998,7 @@ function commitBracketSetScore(storeKey,ri,mi,si){
     +' style="width:44px;height:28px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center;background:var(--surface);color:var(--text);"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'a\',this.value,this)"'
     +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
-    +' onkeydown="if(event.key===\'Tab\'&&this.value!==\'\'){event.preventDefault();focusBracketField(this,\'b\');}"/>'
+    +' onkeydown="if((event.key===\'Tab\'||event.key===\'Enter\')&&this.value!==\'\'){event.preventDefault();focusBracketField(this,\'b\');}"/>'
     +'</div>'
     +'<div style="text-align:center;color:var(--text-muted);font-size:12px;">&ndash;</div>'
     +'<div style="display:flex;align-items:center;justify-content:center;gap:4px;">'
@@ -1004,7 +1006,7 @@ function commitBracketSetScore(storeKey,ri,mi,si){
     +' style="width:44px;height:28px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center;background:var(--surface);color:var(--text);"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this)"'
     +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
-    +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this);commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+');}"/>'
+    +' onkeydown="if(event.key===\'Tab\'||event.key===\'Enter\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this);commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+');}"/>'
     +'</div>';
   var tmp=document.createElement('div');
   tmp.innerHTML=cellsHTML;
@@ -1139,7 +1141,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +' style="width:44px;height:28px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':aWin?'var(--success)':bWin2?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:13px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'a\',this.value,this)"'
           +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+')"'
-          +' onkeydown="if(event.key===\'Tab\'&&this.value!==\'\'){event.preventDefault();focusBracketField(this,\'b\');}"/>'
+          +' onkeydown="if((event.key===\'Tab\'||event.key===\'Enter\')&&this.value!==\'\'){event.preventDefault();focusBracketField(this,\'b\');}"/>'
           +(aWin?'<span style="color:var(--success);font-size:10px;">&#x2713;</span>':'')
           +'</div>';
         var cellB='<div style="display:flex;align-items:center;justify-content:center;gap:4px;">'
@@ -1147,7 +1149,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +' style="width:44px;height:28px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':bWin2?'var(--success)':aWin?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:13px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'b\',this.value,this)"'
           +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+')"'
-          +' onkeydown="if(event.key===\'Tab\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'b\',this.value,this);commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+');}"/>'
+          +' onkeydown="if(event.key===\'Tab\'||event.key===\'Enter\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'b\',this.value,this);commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+');}"/>'
           +(bWin2?'<span style="color:var(--success);font-size:10px;">&#x2713;</span>':hasErr?'<span style="color:var(--danger);font-size:9px;">&#x2717;</span>':'')
           +'</div>';
         setRowsHTML+=labelCell+cellA+dashCell+cellB;
