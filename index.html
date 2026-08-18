@@ -26,10 +26,11 @@ main{max-width:1140px;margin:0 auto;padding:24px 16px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
 .card h3{font-size:14px;font-weight:600;margin-bottom:16px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.grid4{display:flex;gap:12px;margin-bottom:20px}
+.metric{flex:0 0 auto;min-width:150px}
 .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow)}
 .metric-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:6px}
-.metric-value{font-size:28px;font-weight:700;color:var(--accent)}
+.metric-value{font-size:16px;font-weight:600;color:var(--accent)}
 .form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
 .form-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:120px}
 .form-group label{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
@@ -124,9 +125,6 @@ nav button{padding:9px 10px;font-size:12px}
 <div class="section active" id="tab-jugadores">
   <div class="grid4">
     <div class="metric"><div class="metric-label">Participantes</div><div class="metric-value" id="m-total">0</div></div>
-    <div class="metric"><div class="metric-label" id="m-zonas-lbl">Zonas</div><div class="metric-value" id="m-zonas">0</div></div>
-    <div class="metric"><div class="metric-label">Partidos jugados</div><div class="metric-value" id="m-partidos">0</div></div>
-    <div class="metric"><div class="metric-label">Campeones</div><div class="metric-value" id="m-champs">0</div></div>
   </div>
   <div class="card" style="padding:16px 20px;">
     <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:500;text-transform:uppercase;">Modo de juego</div>
