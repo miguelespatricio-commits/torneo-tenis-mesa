@@ -572,6 +572,24 @@ function autoFocusSibling(inputEl){
   if(sibling&&sibling.value===''){sibling.focus();sibling.select();return;}
   focusNextEmpty(inputEl,matchId);
 }
+function autoFocusEqSibling(inputEl){
+  if(!inputEl)return;
+  var val=parseInt(inputEl.value);if(isNaN(val))return;
+  if(val!==11&&val<12)return;
+  var mid=inputEl.dataset.eqmid,pi=inputEl.dataset.pi,si=inputEl.dataset.si;
+  var field=inputEl.dataset.field;
+  var otherField=field==='a'?'b':'a';
+  var sibling=document.querySelector('input[data-eqmid="'+mid+'"][data-pi="'+pi+'"][data-si="'+si+'"][data-field="'+otherField+'"]');
+  if(sibling&&sibling.value===''){sibling.focus();sibling.select();return;}
+  var all=Array.from(document.querySelectorAll('input[data-eqmid="'+mid+'"][data-pi="'+pi+'"]'));
+  var cur=all.indexOf(inputEl);
+  for(var i=cur+1;i<all.length;i++){if(all[i].value===''){all[i].focus();all[i].select();return;}}
+}
+function focusEqField(inputEl, field){
+  var mid=inputEl.dataset.eqmid,pi=inputEl.dataset.pi,si=inputEl.dataset.si;
+  var target=document.querySelector('input[data-eqmid="'+mid+'"][data-pi="'+pi+'"][data-si="'+si+'"][data-field="'+field+'"]');
+  if(target){target.focus();target.select();}
+}
 function focusNextInput(matchId,setIdx){
   var all=Array.from(document.querySelectorAll('input[data-mid="'+matchId+'"]'));
   var startInp=all.find(function(el){return el.dataset.si==setIdx;});
@@ -743,10 +761,17 @@ function saveEqSetScore(mid,pi,si,field,val,inputEl){
   em.partidos[pi].sets[si][field]=val;
   var s=em.partidos[pi].sets[si];
   var bothFilled=s.a!==''&&s.a!==undefined&&s.b!==''&&s.b!==undefined;
-  if(!bothFilled){clearSetRowErrors(inputEl);autoFocusSibling(inputEl);updateMetrics();return;}
+  if(!bothFilled){clearSetRowErrors(inputEl);autoFocusEqSibling(inputEl);return;}
   applyScoreValidation(inputEl,s.a,s.b);
-  updateMetrics();
+}
+function commitEqSetScore(mid,pi,si){
+  var em=S.equipoMatches[mid];
+  if(!em||!em.partidos[pi]||!em.partidos[pi].sets||!em.partidos[pi].sets[si])return;
+  var s=em.partidos[pi].sets[si];
+  var bothFilled=s.a!==''&&s.a!==undefined&&s.b!==''&&s.b!==undefined;
+  if(!bothFilled)return;
   if(!setIsComplete(s.a,s.b))return;
+  updateMetrics();
   var setsToWin=parseInt(S.config.sets||2);
   var totalSets=setsToWin*2-1;
   var psets=em.partidos[pi].sets;
