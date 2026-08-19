@@ -576,18 +576,19 @@ function autoFocusEqSibling(inputEl){
   if(!inputEl)return;
   var val=parseInt(inputEl.value);if(isNaN(val))return;
   if(val!==11&&val<12)return;
-  var mid=inputEl.dataset.eqmid,pi=inputEl.dataset.pi,si=inputEl.dataset.si;
-  var field=inputEl.dataset.field;
+  var wrap=inputEl.closest('.eq-partido-fields');if(!wrap)return;
+  var si=inputEl.dataset.si,field=inputEl.dataset.field;
   var otherField=field==='a'?'b':'a';
-  var sibling=document.querySelector('input[data-eqmid="'+mid+'"][data-pi="'+pi+'"][data-si="'+si+'"][data-field="'+otherField+'"]');
+  var sibling=wrap.querySelector('input[data-si="'+si+'"][data-field="'+otherField+'"]');
   if(sibling&&sibling.value===''){sibling.focus();sibling.select();return;}
-  var all=Array.from(document.querySelectorAll('input[data-eqmid="'+mid+'"][data-pi="'+pi+'"]'));
+  var all=Array.from(wrap.querySelectorAll('input'));
   var cur=all.indexOf(inputEl);
   for(var i=cur+1;i<all.length;i++){if(all[i].value===''){all[i].focus();all[i].select();return;}}
 }
 function focusEqField(inputEl, field){
-  var mid=inputEl.dataset.eqmid,pi=inputEl.dataset.pi,si=inputEl.dataset.si;
-  var target=document.querySelector('input[data-eqmid="'+mid+'"][data-pi="'+pi+'"][data-si="'+si+'"][data-field="'+field+'"]');
+  var wrap=inputEl.closest('.eq-partido-fields');if(!wrap)return;
+  var si=inputEl.dataset.si;
+  var target=wrap.querySelector('input[data-si="'+si+'"][data-field="'+field+'"]');
   if(target){target.focus();target.select();}
 }
 function focusNextInput(matchId,setIdx){
@@ -775,10 +776,14 @@ function commitEqSetScore(mid,pi,si){
   var setsToWin=parseInt(S.config.sets||2);
   var totalSets=setsToWin*2-1;
   var psets=em.partidos[pi].sets;
-  var nextSi=setsToDisplay(psets,setsToWin,totalSets)-1;
+  var partidoRes=matchResult(psets,setsToWin);
+  var wrapId='eqp-'+mid.replace(/[^a-z0-9]/gi,'_')+'-'+pi;
   renderResults();
+  if(partidoRes.done)return;
+  var nextSi=setsToDisplay(psets,setsToWin,totalSets)-1;
   setTimeout(function(){
-    var all=Array.from(document.querySelectorAll('input[data-eqmid="'+mid+'"][data-pi="'+pi+'"]'));
+    var wrap=document.getElementById(wrapId);if(!wrap)return;
+    var all=Array.from(wrap.querySelectorAll('input'));
     var startInp=all.find(function(el){return el.dataset.si==nextSi;});
     if(startInp){var si2=all.indexOf(startInp);for(var i=si2;i<all.length;i++){if(all[i].value===''){all[i].focus();all[i].select();return;}}}
   },30);
@@ -814,8 +819,9 @@ function renderEqZone(z){
       var stsShow=setsToDisplay(psets,setsToWin,totalSets);
       var pWinner=pres.done?(pres.w1>=setsToWin?eqs[i].nombre:eqs[j].nombre):'';
       var isDecider=pi===2;
+      var wrapId='eqp-'+m.replace(/[^a-z0-9]/gi,'_')+'-'+pi;
       var hCols='<div></div>';
-      var rA='<div style="font-size:11px;font-weight:500;padding-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;">'+eqs[i].nombre+'</div>';
+      var rA='<div id="'+wrapId+'" class="eq-partido-fields" style="display:contents;"><div style="font-size:11px;font-weight:500;padding-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;">'+eqs[i].nombre+'</div>';
       var rB='<div style="font-size:11px;font-weight:500;padding-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;">'+eqs[j].nombre+'</div>';
       for(var si=0;si<stsShow;si++){
         var s=psets[si]||{a:'',b:''};
@@ -826,17 +832,21 @@ function renderEqZone(z){
         hCols+='<div style="font-size:9px;color:var(--text-muted);text-align:center;font-weight:600;">S'+(si+1)+'</div>';
         var bcA=hasErr?'var(--danger)':aWin?'var(--success)':bWin2?'#fca5a5':'var(--border)';
         var bcB=hasErr?'var(--danger)':bWin2?'var(--success)':aWin?'#fca5a5':'var(--border)';
-                rA+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.a||'')+'" placeholder="0"'
+         rA+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.a||'')+'" placeholder="0"'
           +' data-eqmid="'+m+'" data-pi="'+pi+'" data-si="'+si+'" data-field="a"'
           +' style="width:40px;height:26px;padding:0 3px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveEqSetScore(\''+m+'\','+pi+','+si+',\'a\',this.value,this)"'
-          +' onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"/></div>';
+          +' onblur="commitEqSetScore(\''+m+'\','+pi+','+si+')"'
+          +' onkeydown="if((event.key===\'Tab\'||event.key===\'Enter\')&&this.value!==\'\'){event.preventDefault();focusEqField(this,\'b\');}"/></div>';
         rB+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.b||'')+'" placeholder="0"'
           +' data-eqmid="'+m+'" data-pi="'+pi+'" data-si="'+si+'" data-field="b"'
           +' style="width:40px;height:26px;padding:0 3px;border:1px solid '+bcB+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveEqSetScore(\''+m+'\','+pi+','+si+',\'b\',this.value,this)"'
-          +' onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"/></div>';
+          +' onblur="commitEqSetScore(\''+m+'\','+pi+','+si+')"'
+          +' onkeydown="if(event.key===\'Tab\'||event.key===\'Enter\'){event.preventDefault();saveEqSetScore(\''+m+'\','+pi+','+si+',\'b\',this.value,this);commitEqSetScore(\''+m+'\','+pi+','+si+');}"/></div>';
       }
+      rA+='</div>';
+      var gCols='minmax(80px,110px) repeat('+stsShow+',44px)';
       var gCols='minmax(80px,110px) repeat('+stsShow+',44px)';
       partidoBlocks+='<div style="border:1px solid '+(isDecider?'var(--lightning-border)':'var(--border)')+';border-radius:var(--radius);padding:12px;margin-bottom:10px;background:'+(pres.done?(isDecider?'var(--lightning-bg)':'var(--success-bg)'):'var(--surface)')+';">'
         +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">'
