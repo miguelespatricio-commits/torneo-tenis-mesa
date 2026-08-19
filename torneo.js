@@ -771,6 +771,7 @@ function renderEqZone(z){
   if(eqs.length<2)return'';
   var setsToWin=parseInt(S.config.sets||2);
   var totalSets=setsToWin*2-1;
+  var __eqTab=1;
   var html='<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">'
     +'<span class="tag '+ZCOLS[z.num%ZCOLS.length]+'">Zona '+(z.num+1)+'</span>'
     +'<span class="tag tag-orange">Equipos</span>'
@@ -801,7 +802,6 @@ function renderEqZone(z){
       var hCols='<div></div>';
       var rA='<div style="font-size:11px;font-weight:500;padding-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;">'+eqs[i].nombre+'</div>';
       var rB='<div style="font-size:11px;font-weight:500;padding-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;">'+eqs[j].nombre+'</div>';
-      var __eqTabP=1;
       for(var si=0;si<stsShow;si++){
         var s=psets[si]||{a:'',b:''};
         var sw=calcSetWinner(s.a,s.b);
@@ -812,8 +812,8 @@ function renderEqZone(z){
         var bcA=hasErr?'var(--danger)':aWin?'var(--success)':bWin2?'#fca5a5':'var(--border)';
         var bcB=hasErr?'var(--danger)':bWin2?'var(--success)':aWin?'#fca5a5':'var(--border)';
         var doneSetEq=setIsComplete(s.a,s.b);
-        var tiEqA=doneSetEq?-1:__eqTabP++;
-        var tiEqB=doneSetEq?-1:__eqTabP++;
+        var tiEqA=doneSetEq?-1:__eqTab++;
+        var tiEqB=doneSetEq?-1:__eqTab++;
         rA+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.a||'')+'" placeholder="0"'
           +' data-mid="'+pmid+'" data-si="'+si+'" data-field="a" tabindex="'+tiEqA+'"'
           +' style="width:40px;height:26px;padding:0 3px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:var(--surface);color:var(--text);"'
