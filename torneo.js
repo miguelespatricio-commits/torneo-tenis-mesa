@@ -715,7 +715,7 @@ function renderResults(){
         +(errMsg?'<div style="color:var(--danger);font-size:11px;margin-top:6px;">&#x2717; '+errMsg+'</div>':'')
         +(res.done
           ?'<div style="margin-top:8px;padding:5px 10px;background:var(--success-bg);border:1px solid #bbf7d0;border-radius:var(--radius);font-size:12px;color:var(--success);font-weight:500;">&#x1F3C6; '+winnerName+'</div>'
-           +'<div style="margin-top:6px;text-align:right;"><button class="btn btn-sm btn-danger" onclick="resetZoneMatch(\''+m+'\')">&#x1F5D1; Anular</button></div>'
+         +'<div style="margin-top:6px;text-align:right;"><button class="btn btn-sm btn-danger" onclick="resetZoneMatch(\''+m+'\')">Anular</button></div>'
           :'')
         +'</div>';
       var collapsedScore=scoreSummary?'<span style="font-size:11px;color:var(--text-muted);margin-left:8px;">'+scoreSummary+'</span>':'';
