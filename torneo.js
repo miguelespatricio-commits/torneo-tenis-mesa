@@ -627,10 +627,14 @@ function commitSetScore(mid,si,inputEl){
 function resetZoneMatch(mid){
   if(!confirm('Anular este resultado?'))return;
   S.matches[mid]={sets:[]};
-  renderResults();updateMetrics();
-  // Actualizar llave si existe
+  renderResults();
+  updateMetrics();
   var zDone=S.zones.find(function(z){
-    return z.players&&z.players.some(function(pid){return mid.indexOf(z.id)===0;});
+    return z.players&&z.players.some(function(p1){
+      return z.players.some(function(p2){
+        return p1!==p2&&midKey(z.id,p1,p2)===mid;
+      });
+    });
   });
   if(zDone&&S.bracket[zDone.cat])autoUpdateBracket(zDone.cat);
 }
@@ -1088,27 +1092,23 @@ function resetBracketMatch(storeKey,ri,mi){
   var key=isRl?storeKey.slice(3):storeKey;
   var store=isRl?S.rlBracket:S.bracket;
   var b=store[key];if(!b)return;
-  // Borrar scores del partido
+  // Borrar scores del partido actual
   var k=bScoreKey(storeKey,ri,mi);
   S.bracketScores[k]={sets:[]};
-  // Borrar winner del partido
-  var match=b.rounds[ri][mi];
-  match.winner=null;
-  // Propagar en cascada: marcar slots siguientes como pending y borrar winners
-  var nm=Math.floor(mi/2),isF=mi%2===0;
+  b.rounds[ri][mi].winner=null;
+  // Propagar en cascada
+  var curMi=mi;
   for(var rr=ri+1;rr<b.rounds.length;rr++){
-    var nmi=Math.floor(mi/Math.pow(2,rr-ri));
-    var next=b.rounds[rr]&&b.rounds[rr][nmi];
+    var nextMi=Math.floor(curMi/2);
+    var isFirst=curMi%2===0;
+    var next=b.rounds[rr]&&b.rounds[rr][nextMi];
     if(!next)break;
-    var isFirst=(Math.floor(mi/Math.pow(2,rr-ri)))%2===0;
-    // Borrar el jugador que venía de esta rama
     if(isFirst){next.p1={player:null,zona:null,isBye:false,pending:true};}
     else{next.p2={player:null,zona:null,isBye:false,pending:true};}
-    // Borrar resultado de este partido si lo tenía
-    var kk=bScoreKey(storeKey,rr,nmi);
+    var kk=bScoreKey(storeKey,rr,nextMi);
     S.bracketScores[kk]={sets:[]};
     next.winner=null;next.auto=false;
-    // Si el otro slot también está vacío, no hay partido que jugar
+    curMi=nextMi;
   }
   if(isRl)renderRLBracket(key);else renderBracket(key);
 }
