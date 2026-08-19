@@ -624,6 +624,16 @@ function commitSetScore(mid,si,inputEl){
     focusNextInput(mid,nextSi);
   },30);
 }
+function resetZoneMatch(mid){
+  if(!confirm('Anular este resultado?'))return;
+  S.matches[mid]={sets:[]};
+  renderResults();updateMetrics();
+  // Actualizar llave si existe
+  var zDone=S.zones.find(function(z){
+    return z.players&&z.players.some(function(pid){return mid.indexOf(z.id)===0;});
+  });
+  if(zDone&&S.bracket[zDone.cat])autoUpdateBracket(zDone.cat);
+}
 function matchStatusHTML(mid){
   var mv=S.matches[mid]||{};
   var setsToWin=parseInt(S.config.sets||2);
@@ -699,7 +709,10 @@ function renderResults(){
         +'<div style="display:grid;grid-template-columns:'+gridCols+';gap:2px;align-items:center;margin-bottom:4px;">'+rA+'</div>'
         +'<div style="display:grid;grid-template-columns:'+gridCols+';gap:2px;align-items:center;">'+rB+'</div>'
         +(errMsg?'<div style="color:var(--danger);font-size:11px;margin-top:6px;">&#x2717; '+errMsg+'</div>':'')
-        +(res.done?'<div style="margin-top:8px;padding:5px 10px;background:var(--success-bg);border:1px solid #bbf7d0;border-radius:var(--radius);font-size:12px;color:var(--success);font-weight:500;">&#x1F3C6; '+winnerName+'</div>':'')
+        +(res.done
+          ?'<div style="margin-top:8px;padding:5px 10px;background:var(--success-bg);border:1px solid #bbf7d0;border-radius:var(--radius);font-size:12px;color:var(--success);font-weight:500;">&#x1F3C6; '+winnerName+'</div>'
+           +'<div style="margin-top:6px;text-align:right;"><button class="btn btn-sm btn-danger" onclick="resetZoneMatch(\''+m+'\')">&#x1F5D1; Anular</button></div>'
+          :'')
         +'</div>';
       var collapsedScore=scoreSummary?'<span style="font-size:11px;color:var(--text-muted);margin-left:8px;">'+scoreSummary+'</span>':'';
       var winBadge='';
@@ -1069,6 +1082,36 @@ function buildRounds(seeds){
   }
   return rounds;
 }
+function resetBracketMatch(storeKey,ri,mi){
+  if(!confirm('Anular este resultado? Se anularan tambien los partidos siguientes que dependan de este.'))return;
+  var isRl=storeKey.startsWith('rl:');
+  var key=isRl?storeKey.slice(3):storeKey;
+  var store=isRl?S.rlBracket:S.bracket;
+  var b=store[key];if(!b)return;
+  // Borrar scores del partido
+  var k=bScoreKey(storeKey,ri,mi);
+  S.bracketScores[k]={sets:[]};
+  // Borrar winner del partido
+  var match=b.rounds[ri][mi];
+  match.winner=null;
+  // Propagar en cascada: marcar slots siguientes como pending y borrar winners
+  var nm=Math.floor(mi/2),isF=mi%2===0;
+  for(var rr=ri+1;rr<b.rounds.length;rr++){
+    var nmi=Math.floor(mi/Math.pow(2,rr-ri));
+    var next=b.rounds[rr]&&b.rounds[rr][nmi];
+    if(!next)break;
+    var isFirst=(Math.floor(mi/Math.pow(2,rr-ri)))%2===0;
+    // Borrar el jugador que venía de esta rama
+    if(isFirst){next.p1={player:null,zona:null,isBye:false,pending:true};}
+    else{next.p2={player:null,zona:null,isBye:false,pending:true};}
+    // Borrar resultado de este partido si lo tenía
+    var kk=bScoreKey(storeKey,rr,nmi);
+    S.bracketScores[kk]={sets:[]};
+    next.winner=null;next.auto=false;
+    // Si el otro slot también está vacío, no hay partido que jugar
+  }
+  if(isRl)renderRLBracket(key);else renderBracket(key);
+}
 function advanceBracket(storeKey,ri,mi,w){
   var isRl=storeKey.startsWith('rl:');
   var key=isRl?storeKey.slice(3):storeKey;
@@ -1169,7 +1212,12 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +'</div>';
         setRowsHTML+=labelCell+cellA+dashCell+cellB;
       }
-      var winnerHTML=res.done?'<div style="grid-column:1/5;text-align:center;color:var(--success);font-size:12px;font-weight:500;margin-top:4px;padding:6px 10px;background:var(--success-bg);border-radius:var(--radius);">&#x1F3C6; '+(w===1?n1:n2)+' ('+res.w1+'&ndash;'+res.w2+')</div>':'';
+      var winnerHTML=res.done
+        ?'<div style="grid-column:1/5;text-align:center;color:var(--success);font-size:12px;font-weight:500;margin-top:4px;padding:6px 10px;background:var(--success-bg);border-radius:var(--radius);">&#x1F3C6; '+(w===1?n1:n2)+' ('+res.w1+'&ndash;'+res.w2+')</div>'
+         +'<div style="grid-column:1/5;text-align:center;margin-top:6px;">'
+         +'<button class="btn btn-sm btn-danger" onclick="resetBracketMatch(\''+storeKey+'\','+ri+','+mi+')">&#x1F5D1; Anular resultado</button>'
+         +'</div>'
+        :'';
       if(canPlay){
         var roundName=rn(ri);
         var roundColor=isRl?'var(--lightning)':'var(--accent)';
