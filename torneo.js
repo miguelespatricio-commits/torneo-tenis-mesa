@@ -821,7 +821,7 @@ function renderEqZone(z){
       var isDecider=pi===2;
       var wrapId='eqp-'+m.replace(/[^a-z0-9]/gi,'_')+'-'+pi;
       var hCols='<div></div>';
-      var rA='<div id="'+wrapId+'" class="eq-partido-fields" style="display:contents;"><div style="font-size:11px;font-weight:500;padding-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;">'+eqs[i].nombre+'</div>';
+      var rA='<div style="font-size:11px;font-weight:500;padding-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;">'+eqs[i].nombre+'</div>';
       var rB='<div style="font-size:11px;font-weight:500;padding-right:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;">'+eqs[j].nombre+'</div>';
       for(var si=0;si<stsShow;si++){
         var s=psets[si]||{a:'',b:''};
@@ -845,8 +845,6 @@ function renderEqZone(z){
           +' onblur="commitEqSetScore(\''+m+'\','+pi+','+si+')"'
           +' onkeydown="if(event.key===\'Tab\'||event.key===\'Enter\'){event.preventDefault();saveEqSetScore(\''+m+'\','+pi+','+si+',\'b\',this.value,this);commitEqSetScore(\''+m+'\','+pi+','+si+');}"/></div>';
       }
-      rA+='</div>';
-      var gCols='minmax(80px,110px) repeat('+stsShow+',44px)';
       var gCols='minmax(80px,110px) repeat('+stsShow+',44px)';
       partidoBlocks+='<div style="border:1px solid '+(isDecider?'var(--lightning-border)':'var(--border)')+';border-radius:var(--radius);padding:12px;margin-bottom:10px;background:'+(pres.done?(isDecider?'var(--lightning-bg)':'var(--success-bg)'):'var(--surface)')+';">'
         +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">'
@@ -854,9 +852,11 @@ function renderEqZone(z){
         +'<span class="tag '+(def.tipo==='Dobles'?'tag-orange':'tag-gray')+'" style="margin-left:6px;font-size:10px;">'+def.tipo+'</span></div>'
         +(pres.done?'<span class="tag '+(isDecider?'tag-rl':'tag-green')+'" style="font-size:11px;">'+(isDecider?'&#x26A1; ':'')+pWinner+' ('+pres.w1+'&ndash;'+pres.w2+')</span>':'<span style="color:var(--text-muted);font-size:12px;">'+pres.w1+'&ndash;'+pres.w2+' sets</span>')
         +'</div>'
+        +'<div id="'+wrapId+'" class="eq-partido-fields">'
         +'<div style="display:grid;grid-template-columns:'+gCols+';gap:2px;align-items:center;margin-bottom:2px;">'+hCols+'</div>'
         +'<div style="display:grid;grid-template-columns:'+gCols+';gap:2px;align-items:center;margin-bottom:3px;">'+rA+'</div>'
         +'<div style="display:grid;grid-template-columns:'+gCols+';gap:2px;align-items:center;">'+rB+'</div>'
+        +'</div>'
         +'</div>';
     }
     var overallBanner=overallRes.done
