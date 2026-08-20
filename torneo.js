@@ -54,7 +54,7 @@ function setFormat(f){
     :'<span class="tag tag-blue">&#x1F3C6; Clasico</span>';
   document.getElementById('panel-clasico').style.display=f==='clasico'?'':'none';
   document.getElementById('panel-relampago').style.display=f==='relampago'?'':'none';
-  document.getElementById('m-zonas-lbl').textContent=f==='relampago'?'En llave':'Zonas';
+  var mzl=document.getElementById('m-zonas-lbl');if(mzl)mzl.textContent=f==='relampago'?'En llave':'Zonas';
 }
 
 // ═══════════════════ TABS ═══════════════════
@@ -1190,7 +1190,7 @@ function commitBracketSetScore(storeKey,ri,mi,si){
     +' style="width:44px;height:28px;padding:0 3px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center;background:var(--surface);color:var(--text);"'
     +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this)"'
     +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+')"'
-    +' onkeydown="if(event.key===\'Tab\'||event.key===\'Enter\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+',\'b\',this.value,this);commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+nextSi+');}"/>'
+    +' onkeydown="if(event.key===\'Tab\'||event.key===\'Enter\'){event.preventDefault();this.blur();}"/>'   
     +'</div>';
   var tmp=document.createElement('div');
   tmp.innerHTML=cellsHTML;
@@ -1336,7 +1336,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
       var b1=match.p1.isBye,b2=match.p2.isBye;
       var canPlay=match.p1.player&&match.p2.player&&!b1&&!b2&&!match.p1.pending&&!match.p2.pending;
       var roundName=rn(ri);
-      var printBtn=canPlay?'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="event.stopPropagation();printBracketMatch(\''+jsEsc(n1)+'\',\''+jsEsc(n2)+'\',\''+jsEsc(catLabelForPrint)+'\',\''+jsEsc(roundName)+'\')" style="position:absolute;top:2px;right:2px;padding:1px 4px;height:auto;min-height:0;font-size:10px;line-height:1.4;z-index:2;">&#x1F5A8;</button>':'';
+      var printBtn=canPlay?'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="event.stopPropagation();printBracketMatch(\''+jsEsc(n1)+'\',\''+jsEsc(n2)+'\',\''+jsEsc(catLabelForPrint)+'\',\''+jsEsc(roundName)+'\')" style="position:absolute;top:-9px;right:-6px;padding:1px 3px;height:16px;min-height:0;font-size:9px;line-height:1;z-index:2;background:var(--surface);border:1px solid var(--border);border-radius:4px;">&#x1F5A8;</button>':'';
       var entryId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
       var bKey=bScoreKey(storeKey,ri,mi);
       var sets=getBracketSets(storeKey,ri,mi);
@@ -1363,7 +1363,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +' style="width:44px;height:28px;padding:0 3px;border:1px solid '+(hasErr?'var(--danger)':bWin2?'var(--success)':aWin?'#fca5a5':'var(--border)')+';border-radius:var(--radius);font-size:13px;text-align:center;background:var(--surface);color:var(--text);"'
           +' oninput="saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'b\',this.value,this)"'
           +' onblur="commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+')"'
-          +' onkeydown="if(event.key===\'Tab\'||event.key===\'Enter\'){event.preventDefault();saveBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+',\'b\',this.value,this);commitBracketSetScore(\''+storeKey+'\','+ri+','+mi+','+si+');}"/>'
+          +' onkeydown="if(event.key===\'Tab\'||event.key===\'Enter\'){event.preventDefault();this.blur();}"/>'          
           +(bWin2?'<span style="color:var(--success);font-size:10px;">&#x2713;</span>':hasErr?'<span style="color:var(--danger);font-size:9px;">&#x2717;</span>':'')
           +'</div>';
         setRowsHTML+=labelCell+cellA+dashCell+cellB;
