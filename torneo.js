@@ -636,7 +636,47 @@ function resetZoneMatch(mid){
       });
     });
   });
-  if(zDone&&S.bracket[zDone.cat])autoUpdateBracket(zDone.cat);
+  if(!zDone)return;
+  var cat=zDone.cat;
+  var b=S.bracket[cat];
+  if(!b||!b.slotMap)return;
+  // Encontrar los slots de esta zona en el bracket y limpiarlos en cascada
+  var cz=S.zones.filter(function(z){return z.cat===cat;});
+  var bracketSize=b.bracketSize;
+  var slots=new Array(bracketSize).fill(null);
+  b.slotMap.forEach(function(sm){
+    var z=cz.find(function(z){return z.id===sm.zonaId;});
+    if(z&&zonaCompleta(z)){
+      var st=getStandings(z);
+      if(st.length>=sm.rank)slots[sm.pos-1]={player:st[sm.rank-1].player,zona:z.num+1,rank:sm.rank};
+      else slots[sm.pos-1]={pending:true};
+    }else{
+      slots[sm.pos-1]={pending:true};
+    }
+  });
+  // Reconstruir rounds
+  var newRounds=buildRounds(slots);
+  // Para cada slot que quedó pending, limpiar en cascada todas las rondas siguientes
+  b.slotMap.forEach(function(sm){
+    var z=cz.find(function(z){return z.id===sm.zonaId;});
+    if(!z||zonaCompleta(z))return;
+    // Este slot es pending — buscar en qué partido de ronda 0 está y limpiar cascada
+    var slotIdx=sm.pos-1;
+    var mi0=Math.floor(slotIdx/2);
+    // Limpiar scores y winners en cascada desde ronda 0
+    var curMi=mi0;
+    for(var rr=0;rr<b.rounds.length;rr++){
+      var match=newRounds[rr]&&newRounds[rr][curMi];
+      if(!match)break;
+      var kk=bScoreKey(cat,rr,curMi);
+      S.bracketScores[kk]={sets:[]};
+      match.winner=null;match.auto=false;
+      if(rr<b.rounds.length-1)curMi=Math.floor(curMi/2);
+    }
+  });
+  b.rounds=newRounds;
+  b.pendientes=cz.filter(function(z){return!zonaCompleta(z);}).length;
+  renderBracket(cat);
 }
 function matchStatusHTML(mid){
   var mv=S.matches[mid]||{};
