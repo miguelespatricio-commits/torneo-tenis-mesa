@@ -733,18 +733,18 @@ function renderResults(){
         var tiA=doneSet?-1:__tab++;
         var tiB=doneSet?-1:__tab++;
         var bgSet=doneSet?'var(--bg)':'var(--surface)';
-                rA+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.a||'')+'" placeholder="0"'
+          rA+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.a||'')+'" placeholder="0"'
           +' data-mid="'+m+'" data-si="'+si+'" data-field="a" tabindex="'+tiA+'"'
           +' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcA+';border-radius:var(--radius);font-size:12px;text-align:center;background:'+bgSet+';color:var(--text);"'
           +' oninput="saveSetScore(\''+m+'\','+si+',\'a\',this.value,this)"'
           +' onblur="commitSetScore(\''+m+'\','+si+',this)"'
-          +' onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}else if(event.key===\'Tab\'){event.preventDefault();focusNextEmpty(this,\''+m+'\');}"/></div>';     
+          +' onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}else if(event.key===\'Tab\'){event.preventDefault();commitSetScore(\''+m+'\','+si+',this);focusNextEmpty(this,\''+m+'\');}"/></div>';    
         rB+='<div style="padding:1px 2px;"><input type="number" min="0" value="'+(s.b||'')+'" placeholder="0"'
           +' data-mid="'+m+'" data-si="'+si+'" data-field="b" tabindex="'+tiB+'"'
           +' style="width:46px;height:28px;padding:0 4px;border:1px solid '+bcB+';border-radius:var(--radius);font-size:12px;text-align:center;background:'+bgSet+';color:var(--text);"'
           +' oninput="saveSetScore(\''+m+'\','+si+',\'b\',this.value,this)"'
           +' onblur="commitSetScore(\''+m+'\','+si+',this)"'
-          +' onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}else if(event.key===\'Tab\'){event.preventDefault();focusNextEmpty(this,\''+m+'\');}"/></div>';
+          +' onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}else if(event.key===\'Tab\'){event.preventDefault();commitSetScore(\''+m+'\','+si+',this);focusNextEmpty(this,\''+m+'\');}"/></div>';
       }
       var gridCols='minmax(90px,140px) repeat('+stsShow+',52px)';
       var panelId='panel-'+m;
