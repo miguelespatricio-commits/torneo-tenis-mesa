@@ -1024,7 +1024,16 @@ function renderRanking(){
 // ═══════════════════ BRACKET ═══════════════════
 function bScoreKey(storeKey,ri,mi){return storeKey+'|'+ri+'|'+mi;}
 function getBracketSets(storeKey,ri,mi){return(S.bracketScores[bScoreKey(storeKey,ri,mi)]||{sets:[]}).sets;}
-function toggleBracketEntry(id){var el=document.getElementById(id);if(!el)return;el.style.display=el.style.display==='none'?'block':'none';}
+function toggleBracketEntry(id){
+  var el=document.getElementById(id);if(!el)return;
+  if(el.style.display==='none'||el.style.display===''){
+    el.style.display='block';
+    var first=el.querySelector('input[type=number]');
+    if(first){setTimeout(function(){first.focus();first.select();},50);}
+  }else{
+    el.style.display='none';
+  }
+}
 function focusBracketField(inputEl, field){
   var grid=inputEl.closest('.bkt-grid');
   if(!grid)return;
