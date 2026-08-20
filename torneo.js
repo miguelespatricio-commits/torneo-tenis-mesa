@@ -1131,8 +1131,11 @@ function toggleBracketEntry(id){
   var el=document.getElementById(id);if(!el)return;
   if(el.style.display==='none'||el.style.display===''){
     el.style.display='block';
-    var first=el.querySelector('input[type=number]');
-    if(first){setTimeout(function(){first.focus();first.select();},50);}
+    var yaResuelto=el.querySelector('button[onclick^="resetBracketMatch"]');
+    if(!yaResuelto){
+      var first=el.querySelector('input[type=number]');
+      if(first){setTimeout(function(){first.focus();first.select();},50);}
+    }
   }else{
     el.style.display='none';
   }
@@ -1161,10 +1164,16 @@ function commitBracketSetScore(storeKey,ri,mi,si){
   if(!s.a&&!s.b)return;
   if(!setIsComplete(s.a,s.b))return;
   var setsToWin=parseInt(S.config.sets||2);
-  var res=matchResult(mv.sets,setsToWin);
+    var res=matchResult(mv.sets,setsToWin);
   var panelId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
   if(res.done){
     var winner=res.w1>=setsToWin?1:2;
+    var isRlC=storeKey.startsWith('rl:');
+    var keyC=isRlC?storeKey.slice(3):storeKey;
+    var storeC=isRlC?S.rlBracket:S.bracket;
+    var bC=storeC[keyC];
+    var matchC=bC&&bC.rounds[ri]&&bC.rounds[ri][mi];
+    if(matchC&&matchC.winner===winner)return;
     var panel=document.getElementById(panelId);
     if(panel)panel.style.display='none';
     advanceBracket(storeKey,ri,mi,winner);
@@ -1318,7 +1327,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
   var catLabelForPrint=catNm(catIdForPrint);
   var setsToWin=parseInt(S.config.sets||2);
   var totalSets=setsToWin*2-1;
-  var MATCH_H=62;
+  var MATCH_H=108;
   var baseSlots=rounds[0]?rounds[0].length:1;
   var totalH=baseSlots*MATCH_H+(baseSlots-1)*8;
   var h='<div class="bracket-scroll"><div class="rounds-wrap" style="align-items:stretch;">';
@@ -1336,7 +1345,6 @@ function makeBracketHTML(rounds,storeKey,isRl){
       var b1=match.p1.isBye,b2=match.p2.isBye;
       var canPlay=match.p1.player&&match.p2.player&&!b1&&!b2&&!match.p1.pending&&!match.p2.pending;
       var roundName=rn(ri);
-      var printBtn=canPlay?'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="event.stopPropagation();printBracketMatch(\''+jsEsc(n1)+'\',\''+jsEsc(n2)+'\',\''+jsEsc(catLabelForPrint)+'\',\''+jsEsc(roundName)+'\')" style="position:absolute;top:-9px;right:-6px;padding:1px 3px;height:16px;min-height:0;font-size:9px;line-height:1;z-index:2;background:var(--surface);border:1px solid var(--border);border-radius:4px;">&#x1F5A8;</button>':'';
       var entryId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
       var bKey=bScoreKey(storeKey,ri,mi);
       var sets=getBracketSets(storeKey,ri,mi);
@@ -1399,21 +1407,33 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +'</div>'
           +'</div>';
       }
-        h+='<div style="height:'+slotH+'px;display:flex;align-items:center;justify-content:center;">'
-        +'<div class="match-box" style="width:100%;margin:0 8px;position:relative;">'
-        +printBtn
-        +'<div class="match-player'+(w===1?' winner'+wClass:'')+(b1?' bye':'')+'"'   
+              var headerRowHTML='';
+      if(canPlay){
+        if(w){
+          headerRowHTML='<div style="padding:3px 10px;font-size:10px;font-weight:600;color:var(--success);background:var(--success-bg);border-bottom:1px solid var(--border);">&#x2713; '+res.w1+'&ndash;'+res.w2+'</div>';
+        }else if(bSummary){
+          headerRowHTML='<div style="padding:3px 10px;font-size:10px;color:var(--text-muted);background:var(--bg);border-bottom:1px solid var(--border);">'+bSummary+'</div>';
+        }else{
+          headerRowHTML='<div style="padding:3px 10px;font-size:10px;color:var(--text-muted);background:var(--bg);border-bottom:1px solid var(--border);">Sin resultado</div>';
+        }
+      }
+      var printRowHTML=canPlay?'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="event.stopPropagation();printBracketMatch(\''+jsEsc(n1)+'\',\''+jsEsc(n2)+'\',\''+jsEsc(catLabelForPrint)+'\',\''+jsEsc(roundName)+'\')" style="width:100%;display:block;border:none;border-top:1px solid var(--border);border-radius:0;height:24px;font-size:10px;color:var(--text-muted);background:var(--surface);">&#x1F5A8; Imprimir ficha</button>':'';
+      h+='<div style="height:'+slotH+'px;display:flex;align-items:center;justify-content:center;">'
+        +'<div class="match-box" style="width:100%;margin:0 8px;overflow:hidden;">'
+        +headerRowHTML
+        +'<div class="match-player'+(w===1?' winner'+wClass:'')+(b1?' bye':'')+'"'
+        +' onclick="'+(canPlay?'toggleBracketEntry(\''+entryId+'\')':'')+'"'
+        +' style="cursor:'+(canPlay?'pointer':'default')+';border-bottom:1px solid var(--border);">'
+        +'<span>'+n1+z1+'</span>'
+        +(w===1?'<span style="color:var(--accent);font-size:11px;">&#x2713;</span>':'')
+        +'</div>'
+        +'<div class="match-player'+(w===2?' winner'+wClass:'')+(b2?' bye':'')+'"'
         +' onclick="'+(canPlay?'toggleBracketEntry(\''+entryId+'\')':'')+'"'
         +' style="cursor:'+(canPlay?'pointer':'default')+';">'
-        +'<span>'+n1+z1+'</span>'
-        +'<span style="display:flex;align-items:center;gap:3px;flex-shrink:0;">'
-        +(w===1?'<span style="color:var(--accent);font-size:11px;">&#x2713;</span>':'')
-        +(bSummary&&!w?'<span style="font-size:9px;color:var(--text-muted);">'+bSummary+'</span>':'')
-        +(canPlay&&!w?'<span style="font-size:9px;color:var(--text-muted);">&#x270F;</span>':'')
-        +'</span></div>'
-        +'<div class="match-player'+(w===2?' winner'+wClass:'')+(b2?' bye':'')+'">'
         +'<span>'+n2+z2+'</span>'+(w===2?'<span style="color:var(--accent);font-size:11px;">&#x2713;</span>':'')
-        +'</div></div></div>';
+        +'</div>'
+        +printRowHTML
+        +'</div></div>';
     });
     h+='</div></div>';
   });
