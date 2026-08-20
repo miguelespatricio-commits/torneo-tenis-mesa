@@ -770,10 +770,12 @@ function renderResults(){
         +'<span id="mstatus-'+m+'">'+matchStatusHTML(m)+'</span></div>'
         +entryPanel+'</div>';
     }}
-    var standingsHTML=zoneStandingsTableHTML(getStandings(z));
-    return '<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">'
+      var standingsHTML=zoneStandingsTableHTML(getStandings(z));
+    return '<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">'
       +'<span class="tag '+ZCOLS[z.num%ZCOLS.length]+'">Zona '+(z.num+1)+'</span>'
-      +'<span style="font-size:12px;color:var(--text-muted);">'+catNm(z.cat)+' &middot; mejor de '+totalSets+' sets &middot; a 11 puntos</span></div>'
+      +'<span style="font-size:12px;color:var(--text-muted);">'+catNm(z.cat)+' &middot; mejor de '+totalSets+' sets &middot; a 11 puntos</span>'
+      +'<button class="btn btn-sm btn-ghost" style="margin-left:auto;" onclick="printZoneSheet(\''+z.id+'\')">&#x1F5A8; Imprimir fichas</button>'
+      +'</div>'
       +standingsHTML
       +matchCards+'</div>';
   }).join('')||'<div class="card"><div class="empty"><p>Sin partidos</p></div></div>';
@@ -829,10 +831,12 @@ function renderEqZone(z){
   var setsToWin=parseInt(S.config.sets||2);
   var totalSets=setsToWin*2-1;
   var __eqTab=1;
-  var html='<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">'
+  var html='<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">'
     +'<span class="tag '+ZCOLS[z.num%ZCOLS.length]+'">Zona '+(z.num+1)+'</span>'
     +'<span class="tag tag-orange">Equipos</span>'
-    +'<span style="font-size:12px;color:var(--text-muted);">'+catNm(z.cat)+' &middot; Singles/Dobles/Desempate</span></div>'
+    +'<span style="font-size:12px;color:var(--text-muted);">'+catNm(z.cat)+' &middot; Singles/Dobles/Desempate</span>'
+    +'<button class="btn btn-sm btn-ghost" style="margin-left:auto;" onclick="printZoneSheet(\''+z.id+'\')">&#x1F5A8; Imprimir fichas</button>'
+    +'</div>'
     +zoneStandingsTableHTML(getEqStandings(z));
   for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
     var m=midKey(z.id,eqs[i].id,eqs[j].id);
@@ -982,7 +986,106 @@ function zoneStandingsTableHTML(st){
     +'</tr></thead><tbody>'+rows+'</tbody></table>'
     +'</div>';
 }
-
+// ═══════════════════ FICHAS DE PARTIDO (IMPRESION) ═══════════════════
+function jsEsc(str){return String(str).replace(/'/g,"\\'");}
+function openPrintWindow(title,bodyHTML){
+  var w=window.open('','_blank');
+  if(!w){alert('El navegador bloqueo la ventana de impresion. Habilita las ventanas emergentes para este sitio.');return;}
+  var css=''
+    +'body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:0;padding:0;}'
+    +'.ficha{padding:24px 28px;page-break-after:always;}'
+    +'.ficha:last-child{page-break-after:auto;}'
+    +'.fp-header{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:14px;}'
+    +'.fp-torneo{font-size:16px;font-weight:700;}'
+    +'.fp-meta{font-size:12px;color:#444;margin-top:2px;}'
+    +'.fp-equipos{font-size:14px;font-weight:600;margin-bottom:10px;}'
+    +'.fp-table{width:100%;border-collapse:collapse;margin-bottom:14px;}'
+    +'.fp-table th{border:1px solid #111;padding:6px 8px;font-size:12px;text-align:center;background:#f0f0f0;}'
+    +'.fp-table td{border:1px solid #111;padding:0;height:34px;text-align:center;}'
+    +'.fp-table-sm td{height:26px;}'
+    +'.fp-setlbl{font-size:11px;color:#444;width:70px;background:#fafafa;padding-left:8px !important;text-align:left !important;}'
+    +'.fp-subpartido{margin-bottom:16px;}'
+    +'.fp-sublabel{font-size:12px;font-weight:600;margin-bottom:4px;}'
+    +'.fp-footer{display:flex;justify-content:space-between;margin-top:16px;font-size:12px;}'
+    +'.fp-line{display:inline-block;border-bottom:1px solid #111;min-width:160px;height:14px;margin-left:6px;}'
+    +'@media print{.ficha{padding:14px 18px;}}';
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+title+'</title><style>'+css+'</style></head><body>'+bodyHTML+'</body></html>');
+  w.document.close();
+  w.focus();
+  setTimeout(function(){w.print();},300);
+}
+function buildFichaSingle(nameA,nameB,catLabel,roundLabel){
+  var setsToWin=parseInt(S.config.sets||2);
+  var totalSets=setsToWin*2-1;
+  var rows='';
+  for(var i=0;i<totalSets;i++){
+    rows+='<tr><td class="fp-setlbl">Set '+(i+1)+'</td><td></td><td></td></tr>';
+  }
+  return '<div class="ficha">'
+    +'<div class="fp-header">'
+    +'<div class="fp-torneo">'+(S.config.nombre||'Torneo de Tenis de Mesa')+'</div>'
+    +'<div class="fp-meta">'+catLabel+(roundLabel?' &middot; '+roundLabel:'')+' &middot; Mejor de '+totalSets+' sets &middot; a 11 puntos</div>'
+    +'</div>'
+    +'<table class="fp-table">'
+    +'<thead><tr><th></th><th>'+nameA+'</th><th>'+nameB+'</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody>'
+    +'</table>'
+    +'<div class="fp-footer">'
+    +'<div class="fp-winner">Ganador: <span class="fp-line"></span></div>'
+    +'<div class="fp-arbitro">Arbitro: <span class="fp-line"></span></div>'
+    +'</div>'
+    +'</div>';
+}
+function buildFichaEquipo(nameA,nameB,catLabel,roundLabel){
+  var setsToWin=parseInt(S.config.sets||2);
+  var totalSets=setsToWin*2-1;
+  var blocks=EQ_PARTIDOS.map(function(def){
+    var rows='';
+    for(var i=0;i<totalSets;i++){
+      rows+='<tr><td class="fp-setlbl">Set '+(i+1)+'</td><td></td><td></td></tr>';
+    }
+    return '<div class="fp-subpartido">'
+      +'<div class="fp-sublabel">'+def.label.replace('&mdash;','-')+' ('+def.tipo+')</div>'
+      +'<table class="fp-table fp-table-sm"><thead><tr><th></th><th>Jugador/es A</th><th>Jugador/es B</th></tr></thead>'
+      +'<tbody>'+rows+'</tbody></table>'
+      +'</div>';
+  }).join('');
+  return '<div class="ficha">'
+    +'<div class="fp-header">'
+    +'<div class="fp-torneo">'+(S.config.nombre||'Torneo de Tenis de Mesa')+'</div>'
+    +'<div class="fp-meta">'+catLabel+(roundLabel?' &middot; '+roundLabel:'')+' &middot; Encuentro por equipos</div>'
+    +'</div>'
+    +'<div class="fp-equipos">'+nameA+' vs '+nameB+'</div>'
+    +blocks
+    +'<div class="fp-footer">'
+    +'<div class="fp-winner">Equipo ganador: <span class="fp-line"></span></div>'
+    +'<div class="fp-arbitro">Arbitro / Mesa: <span class="fp-line"></span></div>'
+    +'</div>'
+    +'</div>';
+}
+function printZoneSheet(zoneId){
+  var z=S.zones.find(function(zz){return zz.id===zoneId;});
+  if(!z){alert('Zona no encontrada');return;}
+  var catLabel=catNm(z.cat);
+  var roundLabel='Zona '+(z.num+1);
+  var fichas='';
+  if(z.mode==='equipos'){
+    var eqs=z.players.map(function(pid){return S.equipos.find(function(e){return e.id===pid;});}).filter(Boolean);
+    for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
+      fichas+=buildFichaEquipo(eqs[i].nombre,eqs[j].nombre,catLabel,roundLabel);
+    }}
+  }else{
+    var ps=z.players.map(function(pid){return S.players.find(function(p){return p.id===pid;});}).filter(Boolean);
+    for(var i=0;i<ps.length;i++){for(var j=i+1;j<ps.length;j++){
+      fichas+=buildFichaSingle(dn(ps[i]),dn(ps[j]),catLabel,roundLabel);
+    }}
+  }
+  if(!fichas){alert('No hay partidos en esta zona');return;}
+  openPrintWindow('Fichas - '+roundLabel,fichas);
+}
+function printBracketMatch(nameA,nameB,catLabel,roundLabel){
+  openPrintWindow('Ficha - '+nameA+' vs '+nameB,buildFichaSingle(nameA,nameB,catLabel,roundLabel));
+}
 // ═══════════════════ RANKING ═══════════════════
 function renderRanking(){
   var cf=document.getElementById('rank-cat-filter').value;
@@ -1211,6 +1314,8 @@ function makeBracketHTML(rounds,storeKey,isRl){
   var nr=rounds.length;
   function rn(i){return i===nr-1?'Final':i===nr-2?'Semifinal':i===nr-3?'Cuartos':'Ronda '+(i+1);}
   var wClass=isRl?' rl-winner':'';
+  var catIdForPrint=isRl?storeKey.slice(3):storeKey;
+  var catLabelForPrint=catNm(catIdForPrint);
   var setsToWin=parseInt(S.config.sets||2);
   var totalSets=setsToWin*2-1;
   var MATCH_H=62;
@@ -1230,6 +1335,8 @@ function makeBracketHTML(rounds,storeKey,isRl){
       var w=match.winner;
       var b1=match.p1.isBye,b2=match.p2.isBye;
       var canPlay=match.p1.player&&match.p2.player&&!b1&&!b2&&!match.p1.pending&&!match.p2.pending;
+      var roundName=rn(ri);
+      var printBtn=canPlay?'<button class="btn btn-sm btn-ghost" tabindex="-1" onclick="event.stopPropagation();printBracketMatch(\''+jsEsc(n1)+'\',\''+jsEsc(n2)+'\',\''+jsEsc(catLabelForPrint)+'\',\''+jsEsc(roundName)+'\')" style="position:absolute;top:2px;right:2px;padding:1px 4px;height:auto;min-height:0;font-size:10px;line-height:1.4;z-index:2;">&#x1F5A8;</button>':'';
       var entryId='be-'+storeKey.replace(/[^a-z0-9]/gi,'_')+'-'+ri+'-'+mi;
       var bKey=bScoreKey(storeKey,ri,mi);
       var sets=getBracketSets(storeKey,ri,mi);
@@ -1271,7 +1378,7 @@ function makeBracketHTML(rounds,storeKey,isRl){
         var roundName=rn(ri);
         var roundColor=isRl?'var(--lightning)':'var(--accent)';
         var roundBg=isRl?'var(--lightning-bg)':'var(--accent-bg)';
-        panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
+           panels+='<div id="'+entryId+'" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);'
           +'z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);'
           +'min-width:360px;max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,.18);">'
           +'<div style="background:'+roundBg+';border-bottom:1px solid var(--border);padding:10px 16px;">'
@@ -1292,9 +1399,10 @@ function makeBracketHTML(rounds,storeKey,isRl){
           +'</div>'
           +'</div>';
       }
-      h+='<div style="height:'+slotH+'px;display:flex;align-items:center;justify-content:center;">'
-        +'<div class="match-box" style="width:100%;margin:0 8px;">'
-        +'<div class="match-player'+(w===1?' winner'+wClass:'')+(b1?' bye':'')+'"'
+        h+='<div style="height:'+slotH+'px;display:flex;align-items:center;justify-content:center;">'
+        +'<div class="match-box" style="width:100%;margin:0 8px;position:relative;">'
+        +printBtn
+        +'<div class="match-player'+(w===1?' winner'+wClass:'')+(b1?' bye':'')+'"'   
         +' onclick="'+(canPlay?'toggleBracketEntry(\''+entryId+'\')':'')+'"'
         +' style="cursor:'+(canPlay?'pointer':'default')+';">'
         +'<span>'+n1+z1+'</span>'
