@@ -1084,6 +1084,17 @@ function buildParticipantsTableHTML(items){
     +'<table class="fp-table fp-table-sm"><thead><tr><th style="width:24px;">#</th><th>Nombre</th><th>Club</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table>';
 }
+function buildParticipantsTableEquiposHTML(eqs){
+  var rows=eqs.map(function(eq,i){
+    var memberRows=(eq.jugadores||[]).map(function(m){
+      return '<tr><td></td><td style="text-align:left;padding-left:22px;color:#444;font-size:10px;">'+m.nombre+'</td><td></td></tr>';
+    }).join('');
+    return '<tr><td>'+(i+1)+'</td><td style="text-align:left;padding-left:6px;font-weight:700;">'+eq.nombre+'</td><td></td></tr>'+memberRows;
+  }).join('');
+  return '<div class="fp-section-title">Participantes</div>'
+    +'<table class="fp-table fp-table-sm"><thead><tr><th style="width:24px;">#</th><th>Nombre</th><th>Club</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table>';
+}
 function buildZoneMatchesTableSingles(ps,totalSets){
   var hCols='';
   for(var s=0;s<totalSets;s++)hCols+='<th>Set '+(s+1)+'</th>';
@@ -1111,10 +1122,6 @@ function buildZoneMatchesTableEquipos(eqs,totalSets){
   for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
     if(k>1){rows+='<tr class="fp-spacer"><td colspan="'+colspan+'"></td></tr>';}
     rows+='<tr class="fp-encuentro-hdr"><td colspan="'+colspan+'">Encuentro '+k+': '+eqs[i].nombre+' vs '+eqs[j].nombre+'</td></tr>';
-    var integrantesI=(eqs[i].jugadores||[]).map(function(x){return x.nombre;}).join(', ');
-    var integrantesJ=(eqs[j].jugadores||[]).map(function(x){return x.nombre;}).join(', ');
-    rows+='<tr class="fp-integrantes"><td colspan="'+colspan+'"><strong>'+eqs[i].nombre+':</strong> '+integrantesI+'</td></tr>';
-    rows+='<tr class="fp-integrantes"><td colspan="'+colspan+'"><strong>'+eqs[j].nombre+':</strong> '+integrantesJ+'</td></tr>';
     rows+=headerRow;
     EQ_PARTIDOS.forEach(function(def){
       var cellsA='',cellsB='';
@@ -1135,10 +1142,10 @@ function printZoneSheet(zoneId){
   var setsToWin=parseInt(S.config.sets||2);
   var totalSets=setsToWin*2-1;
   var participantsHTML,matchesHTML;
-  if(z.mode==='equipos'){
+   if(z.mode==='equipos'){
     var eqs=z.players.map(function(pid){return S.equipos.find(function(e){return e.id===pid;});}).filter(Boolean);
     if(eqs.length<2){alert('No hay equipos suficientes en esta zona');return;}
-    participantsHTML=buildParticipantsTableHTML(eqs);
+    participantsHTML=buildParticipantsTableEquiposHTML(eqs);
     matchesHTML=buildZoneMatchesTableEquipos(eqs,totalSets);
   }else{
     var ps=z.players.map(function(pid){return S.players.find(function(p){return p.id===pid;});}).filter(Boolean);
