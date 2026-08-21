@@ -1086,35 +1086,36 @@ function buildZoneMatchesTableSingles(ps,totalSets){
   var rows='';
   var k=1;
   for(var i=0;i<ps.length;i++){for(var j=i+1;j<ps.length;j++){
-    if(k>1){var spCols='';for(var s=0;s<totalSets;s++)spCols+='<td></td>';rows+='<tr class="fp-spacer"><td></td><td></td>'+spCols+'</tr>';}
+    if(k>1){var spCols='';for(var s=0;s<totalSets;s++)spCols+='<td></td>';rows+='<tr class="fp-spacer"><td></td><td></td>'+spCols+'<td></td></tr>';}
     var cellsA='',cellsB='';
     for(var s=0;s<totalSets;s++){cellsA+='<td></td>';cellsB+='<td></td>';}
-    rows+='<tr><td rowspan="2">'+k+'</td><td class="fp-name">'+dn(ps[i])+'</td>'+cellsA+'</tr>';
-    rows+='<tr class="fp-match-end"><td class="fp-name">'+dn(ps[j])+'</td>'+cellsB+'</tr>';
+    rows+='<tr><td rowspan="2">'+k+'</td><td class="fp-name">'+dn(ps[i])+'</td>'+cellsA+'<td></td></tr>';
+    rows+='<tr class="fp-match-end"><td class="fp-name">'+dn(ps[j])+'</td>'+cellsB+'<td></td></tr>';
     k++;
   }}
   return '<div class="fp-section-title">Partidos</div>'
-    +'<table class="fp-table fp-compact"><thead><tr><th style="width:22px;">#</th><th>Jugador/Pareja</th>'+hCols+'</tr></thead>'
+    +'<table class="fp-table fp-compact"><thead><tr><th style="width:22px;">#</th><th>Jugador/Pareja</th>'+hCols+'<th style="width:50px;">Result.</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table>';
 }
 function buildZoneMatchesTableEquipos(eqs,totalSets){
   var hCols='';
   for(var s=0;s<totalSets;s++)hCols+='<th>Set '+(s+1)+'</th>';
-  var colspan=2+totalSets;
+  var colspan=3+totalSets;
   var rows='';
   var k=1;
   for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
+    if(k>1){rows+='<tr class="fp-spacer"><td colspan="'+colspan+'"></td></tr>';}
     rows+='<tr class="fp-encuentro-hdr"><td colspan="'+colspan+'">Encuentro '+k+': '+eqs[i].nombre+' vs '+eqs[j].nombre+'</td></tr>';
     EQ_PARTIDOS.forEach(function(def){
       var cellsA='',cellsB='';
       for(var s=0;s<totalSets;s++){cellsA+='<td></td>';cellsB+='<td></td>';}
-      rows+='<tr><td rowspan="2" style="font-size:9px;">'+def.label.replace('&mdash;','-')+'</td><td class="fp-name">'+eqs[i].nombre+'</td>'+cellsA+'</tr>';
-      rows+='<tr class="fp-match-end"><td class="fp-name">'+eqs[j].nombre+'</td>'+cellsB+'</tr>';
+      rows+='<tr><td rowspan="2" style="font-size:11px;">'+def.label.replace('&mdash;','-')+'</td><td class="fp-name">'+eqs[i].nombre+'</td>'+cellsA+'<td></td></tr>';
+      rows+='<tr class="fp-match-end"><td class="fp-name">'+eqs[j].nombre+'</td>'+cellsB+'<td></td></tr>';
     });
     k++;
   }}
   return '<div class="fp-section-title">Partidos</div>'
-    +'<table class="fp-table fp-compact"><thead><tr><th style="width:70px;">Sub-partido</th><th>Equipo</th>'+hCols+'</tr></thead>'
+    +'<table class="fp-table fp-compact"><thead><tr><th style="width:70px;">Sub-partido</th><th>Equipo</th>'+hCols+'<th style="width:50px;">Result.</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table>';
 }
 function printZoneSheet(zoneId){
