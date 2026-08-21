@@ -1017,6 +1017,10 @@ function openPrintWindow(title,bodyHTML){
     +'.fp-compact tr.fp-match-end td{border-bottom:2px solid #111;}'
     +'.fp-compact tr.fp-spacer td{height:8px;border:none;}'
     +'.fp-compact tr.fp-encuentro-hdr td{background:#eee;font-weight:700;font-size:12px;padding:5px 6px;text-align:center;}'
+    +'.fp-compact tr.fp-encuentro-hdr td{background:#eee;font-weight:700;font-size:12px;padding:5px 6px;text-align:center;}'
+    +'.fp-compact tr.fp-integrantes td{border:none;height:auto;padding:2px 6px !important;font-size:10px;color:#444;text-align:left;}'
+        +'.fp-compact tr.fp-integrantes td{border:none;height:auto;padding:2px 6px !important;font-size:10px;color:#444;text-align:left;}'
+    +'.fp-compact tr.fp-subhdr th{font-size:10px;padding:4px 5px;background:#f7f7f7;border:1px solid #111;}'
     +'@media print{.ficha{padding:14px 18px;}}';
   w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+title+'</title><style>'+css+'</style></head><body>'+bodyHTML+'</body></html>');
   w.document.close();
@@ -1101,11 +1105,17 @@ function buildZoneMatchesTableEquipos(eqs,totalSets){
   var hCols='';
   for(var s=0;s<totalSets;s++)hCols+='<th>Set '+(s+1)+'</th>';
   var colspan=3+totalSets;
+  var headerRow='<tr class="fp-subhdr"><th style="width:70px;">Serie</th><th>Equipo</th>'+hCols+'<th style="width:50px;">Result.</th></tr>';
   var rows='';
   var k=1;
   for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
     if(k>1){rows+='<tr class="fp-spacer"><td colspan="'+colspan+'"></td></tr>';}
     rows+='<tr class="fp-encuentro-hdr"><td colspan="'+colspan+'">Encuentro '+k+': '+eqs[i].nombre+' vs '+eqs[j].nombre+'</td></tr>';
+    var integrantesI=(eqs[i].jugadores||[]).map(function(x){return x.nombre;}).join(', ');
+    var integrantesJ=(eqs[j].jugadores||[]).map(function(x){return x.nombre;}).join(', ');
+    rows+='<tr class="fp-integrantes"><td colspan="'+colspan+'"><strong>'+eqs[i].nombre+':</strong> '+integrantesI+'</td></tr>';
+    rows+='<tr class="fp-integrantes"><td colspan="'+colspan+'"><strong>'+eqs[j].nombre+':</strong> '+integrantesJ+'</td></tr>';
+    rows+=headerRow;
     EQ_PARTIDOS.forEach(function(def){
       var cellsA='',cellsB='';
       for(var s=0;s<totalSets;s++){cellsA+='<td></td>';cellsB+='<td></td>';}
@@ -1115,8 +1125,7 @@ function buildZoneMatchesTableEquipos(eqs,totalSets){
     k++;
   }}
   return '<div class="fp-section-title">Partidos</div>'
-    +'<table class="fp-table fp-compact"><thead><tr><th style="width:70px;">Sub-partido</th><th>Equipo</th>'+hCols+'<th style="width:50px;">Result.</th></tr></thead>'
-    +'<tbody>'+rows+'</tbody></table>';
+    +'<table class="fp-table fp-compact"><tbody>'+rows+'</tbody></table>';
 }
 function printZoneSheet(zoneId){
   var z=S.zones.find(function(zz){return zz.id===zoneId;});
