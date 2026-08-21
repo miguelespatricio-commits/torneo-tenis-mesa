@@ -1008,6 +1008,13 @@ function openPrintWindow(title,bodyHTML){
     +'.fp-sublabel{font-size:12px;font-weight:600;margin-bottom:4px;}'
     +'.fp-footer{display:flex;justify-content:space-between;margin-top:16px;font-size:12px;}'
     +'.fp-line{display:inline-block;border-bottom:1px solid #111;min-width:160px;height:14px;margin-left:6px;}'
+    +'.fp-line{display:inline-block;border-bottom:1px solid #111;min-width:160px;height:14px;margin-left:6px;}'
+    +'.fp-section-title{font-size:12px;font-weight:700;margin:14px 0 6px;border-bottom:1px solid #111;padding-bottom:3px;}'
+    +'.fp-compact th{font-size:9px;padding:3px 5px;}'
+    +'.fp-compact td{padding:0;height:20px;font-size:11px;}'
+    +'.fp-compact td.fp-name{text-align:left;padding-left:6px !important;font-size:10px;}'
+    +'.fp-compact tr.fp-match-end td{border-bottom:2px solid #111;}'
+    +'.fp-compact tr.fp-encuentro-hdr td{background:#eee;font-weight:700;font-size:10px;padding:3px 6px;text-align:left;}'
     +'@media print{.ficha{padding:14px 18px;}}';
   w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+title+'</title><style>'+css+'</style></head><body>'+bodyHTML+'</body></html>');
   w.document.close();
@@ -1063,25 +1070,81 @@ function buildFichaEquipo(nameA,nameB,catLabel,roundLabel){
     +'</div>'
     +'</div>';
 }
+function buildParticipantsTableHTML(items){
+  var rows=items.map(function(p,i){
+    return '<tr><td style="width:24px;">'+(i+1)+'</td><td style="text-align:left;padding-left:6px;">'+dn(p)+'</td><td style="text-align:left;padding-left:6px;color:#444;">'+(p.club||'')+'</td></tr>';
+  }).join('');
+  return '<div class="fp-section-title">Participantes</div>'
+    +'<table class="fp-table fp-table-sm"><thead><tr><th style="width:24px;">#</th><th>Nombre</th><th>Club</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table>';
+}
+function buildZoneMatchesTableSingles(ps,totalSets){
+  var hCols='';
+  for(var s=0;s<totalSets;s++)hCols+='<th>Set '+(s+1)+'</th>';
+  var rows='';
+  var k=1;
+  for(var i=0;i<ps.length;i++){for(var j=i+1;j<ps.length;j++){
+    var cellsA='',cellsB='';
+    for(var s=0;s<totalSets;s++){cellsA+='<td></td>';cellsB+='<td></td>';}
+    rows+='<tr><td rowspan="2">'+k+'</td><td class="fp-name">'+dn(ps[i])+'</td>'+cellsA+'</tr>';
+    rows+='<tr class="fp-match-end"><td class="fp-name">'+dn(ps[j])+'</td>'+cellsB+'</tr>';
+    k++;
+  }}
+  return '<div class="fp-section-title">Partidos</div>'
+    +'<table class="fp-table fp-compact"><thead><tr><th style="width:22px;">#</th><th>Jugador/Pareja</th>'+hCols+'</tr></thead>'
+    +'<tbody>'+rows+'</tbody></table>';
+}
+function buildZoneMatchesTableEquipos(eqs,totalSets){
+  var hCols='';
+  for(var s=0;s<totalSets;s++)hCols+='<th>Set '+(s+1)+'</th>';
+  var colspan=2+totalSets;
+  var rows='';
+  var k=1;
+  for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
+    rows+='<tr class="fp-encuentro-hdr"><td colspan="'+colspan+'">Encuentro '+k+': '+eqs[i].nombre+' vs '+eqs[j].nombre+'</td></tr>';
+    EQ_PARTIDOS.forEach(function(def){
+      var cellsA='',cellsB='';
+      for(var s=0;s<totalSets;s++){cellsA+='<td></td>';cellsB+='<td></td>';}
+      rows+='<tr><td rowspan="2" style="font-size:9px;">'+def.label.replace('&mdash;','-')+'</td><td class="fp-name">'+eqs[i].nombre+'</td>'+cellsA+'</tr>';
+      rows+='<tr class="fp-match-end"><td class="fp-name">'+eqs[j].nombre+'</td>'+cellsB+'</tr>';
+    });
+    k++;
+  }}
+  return '<div class="fp-section-title">Partidos</div>'
+    +'<table class="fp-table fp-compact"><thead><tr><th style="width:70px;">Sub-partido</th><th>Equipo</th>'+hCols+'</tr></thead>'
+    +'<tbody>'+rows+'</tbody></table>';
+}
 function printZoneSheet(zoneId){
   var z=S.zones.find(function(zz){return zz.id===zoneId;});
   if(!z){alert('Zona no encontrada');return;}
   var catLabel=catNm(z.cat);
   var roundLabel='Zona '+(z.num+1);
-  var fichas='';
+  var setsToWin=parseInt(S.config.sets||2);
+  var totalSets=setsToWin*2-1;
+  var participantsHTML,matchesHTML;
   if(z.mode==='equipos'){
     var eqs=z.players.map(function(pid){return S.equipos.find(function(e){return e.id===pid;});}).filter(Boolean);
-    for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
-      fichas+=buildFichaEquipo(eqs[i].nombre,eqs[j].nombre,catLabel,roundLabel);
-    }}
+    if(eqs.length<2){alert('No hay equipos suficientes en esta zona');return;}
+    participantsHTML=buildParticipantsTableHTML(eqs);
+    matchesHTML=buildZoneMatchesTableEquipos(eqs,totalSets);
   }else{
     var ps=z.players.map(function(pid){return S.players.find(function(p){return p.id===pid;});}).filter(Boolean);
-    for(var i=0;i<ps.length;i++){for(var j=i+1;j<ps.length;j++){
-      fichas+=buildFichaSingle(dn(ps[i]),dn(ps[j]),catLabel,roundLabel);
-    }}
+    if(ps.length<2){alert('No hay jugadores suficientes en esta zona');return;}
+    participantsHTML=buildParticipantsTableHTML(ps);
+    matchesHTML=buildZoneMatchesTableSingles(ps,totalSets);
   }
-  if(!fichas){alert('No hay partidos en esta zona');return;}
-  openPrintWindow('Fichas - '+roundLabel,fichas);
+  var ficha='<div class="ficha">'
+    +'<div class="fp-header">'
+    +'<div class="fp-torneo">'+(S.config.nombre||'Torneo de Tenis de Mesa')+'</div>'
+    +'<div class="fp-meta">'+catLabel+' &middot; '+roundLabel+' &middot; Mejor de '+totalSets+' sets &middot; a 11 puntos</div>'
+    +'</div>'
+    +participantsHTML
+    +matchesHTML
+    +'<div class="fp-footer">'
+    +'<div class="fp-arbitro">Arbitro / Mesa: <span class="fp-line"></span></div>'
+    +'</div>'
+    +'</div>';
+  openPrintWindow('Ficha - '+roundLabel,ficha);
 }
 function printBracketMatch(nameA,nameB,catLabel,roundLabel){
   openPrintWindow('Ficha - '+nameA+' vs '+nameB,buildFichaSingle(nameA,nameB,catLabel,roundLabel));
