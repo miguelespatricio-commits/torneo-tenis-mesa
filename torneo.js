@@ -1172,7 +1172,8 @@ function printZoneSheet(zoneId){
   openPrintWindow(fileTitle,ficha);
 }
 function printBracketMatch(nameA,nameB,catLabel,roundLabel){
-  openPrintWindow('Ficha - '+nameA+' vs '+nameB,buildFichaSingle(nameA,nameB,catLabel,roundLabel));
+  var fileTitle=roundLabel.replace(/\s+/g,'')+'_'+catLabel.replace(/\s+/g,'')+'_'+(S.config.nombre||'Torneo').replace(/\s+/g,'');
+  openPrintWindow(fileTitle,buildFichaSingle(nameA,nameB,catLabel,roundLabel));
 }
 // ═══════════════════ RANKING ═══════════════════
 function renderRanking(){
