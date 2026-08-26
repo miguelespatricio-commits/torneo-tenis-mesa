@@ -1001,8 +1001,7 @@ function openPrintWindow(title,bodyHTML){
     +'.fp-equipos{font-size:14px;font-weight:600;margin-bottom:10px;}'
     +'.fp-table{width:100%;border-collapse:collapse;margin-bottom:14px;}'
     +'.fp-table th{border:1px solid #111;padding:6px 8px;font-size:12px;text-align:center;background:#f0f0f0;}'
-    +'.fp-table td{border:1px solid #111;padding:0;height:34px;text-align:center;}'
-    +'.fp-table-sm td{height:26px;}'
+    +'.fp-table td{border:1px solid #111;padding:0;height:34px;text-align:center;vertical-align:top;}'    +'.fp-table-sm td{height:26px;}'
     +'.fp-setlbl{font-size:11px;color:#444;width:70px;background:#fafafa;padding-left:8px !important;text-align:left !important;}'
     +'.fp-subpartido{margin-bottom:16px;}'
     +'.fp-sublabel{font-size:12px;font-weight:600;margin-bottom:4px;}'
@@ -1085,14 +1084,18 @@ function buildParticipantsTableHTML(items){
     +'<tbody>'+rows+'</tbody></table>';
 }
 function buildParticipantsTableEquiposHTML(eqs){
-  var rows=eqs.map(function(eq,i){
-    var memberRows=(eq.jugadores||[]).map(function(m){
-      return '<tr><td></td><td style="text-align:left;padding-left:22px;color:#444;font-size:10px;">'+m.nombre+'</td><td></td></tr>';
-    }).join('');
-    return '<tr><td>'+(i+1)+'</td><td style="text-align:left;padding-left:6px;font-weight:700;">'+eq.nombre+'</td><td></td></tr>'+memberRows;
-  }).join('');
+  function cellFor(eq){
+    var integrantes=(eq.jugadores||[]).map(function(m){return '<div>'+m.nombre+'</div>';}).join('');
+    return '<td style="text-align:center;padding:6px;"><strong>'+eq.nombre+'</strong>'+integrantes+'</td>';
+  }
+  var rows='';
+  var k=1;
+  for(var i=0;i<eqs.length;i++){for(var j=i+1;j<eqs.length;j++){
+    rows+='<tr><td>'+k+'</td>'+cellFor(eqs[i])+cellFor(eqs[j])+'</tr>';
+    k++;
+  }}
   return '<div class="fp-section-title">Participantes</div>'
-    +'<table class="fp-table fp-table-sm"><thead><tr><th style="width:24px;">#</th><th>Nombre</th><th>Club</th></tr></thead>'
+    +'<table class="fp-table fp-table-sm"><thead><tr><th style="width:24px;">#</th><th>Equipo A</th><th>Equipo B</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table>';
 }
 function buildZoneMatchesTableSingles(ps,totalSets){
@@ -1164,7 +1167,9 @@ function printZoneSheet(zoneId){
     +'<div class="fp-arbitro">Arbitro / Mesa: <span class="fp-line"></span></div>'
     +'</div>'
     +'</div>';
-  openPrintWindow('Ficha - '+roundLabel,ficha);
+  var modoLabel=z.mode==='equipos'?'Equipos':'Singles-Dobles';
+  var fileTitle='Zona'+(z.num+1)+'_'+modoLabel+'_'+(S.config.nombre||'Torneo').replace(/\s+/g,'');
+  openPrintWindow(fileTitle,ficha);
 }
 function printBracketMatch(nameA,nameB,catLabel,roundLabel){
   openPrintWindow('Ficha - '+nameA+' vs '+nameB,buildFichaSingle(nameA,nameB,catLabel,roundLabel));
