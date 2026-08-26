@@ -221,7 +221,7 @@ function renderPlayers(){
       +'<td><span class="tag '+catCol(p.cat)+'">'+catNm(p.cat)+'</span></td>'
       +'<td>'+zl+'</td>'+pagoCell
       +'<td style="display:flex;gap:4px;">'
-      +'<button class="btn btn-sm" onclick="editPlayer(\''+p.id+'\')">&#x270F;</button>'
+      +'<button class="btn btn-sm" onclick="editPlayer(\''+p.id+'\')">Edit</button>'
       +'<button class="btn btn-sm btn-danger" onclick="removePlayer(\''+p.id+'\')">&#x2715;</button>'
       +'</td></tr>';
       
@@ -360,7 +360,7 @@ function renderEquipos(){
         +'<div class="team-header">'
         +'<div><strong>'+eq.nombre+'</strong> <span class="tag tag-orange" style="font-size:10px;">Equipo</span>'+eqPagoBtn(eq)+'</div>'
         +'<div style="display:flex;gap:4px;align-items:center;">'
-        +'<button class="btn btn-sm btn-ghost" onclick="editEquipo(\''+eq.id+'\')" style="color:var(--text-muted);font-size:11px;" title="Editar equipo">&#x270F;</button>'
+        +'<button class="btn btn-sm btn-ghost" onclick="editEquipo(\''+eq.id+'\')" style="color:var(--text-muted);font-size:11px;" title="Editar equipo">Edit</button>'
         +'<button class="btn btn-sm btn-danger" onclick="removeEquipo(\''+eq.id+'\')">&#x2715;</button>'
         +'</div></div>'
         +'<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">'+eq.jugadores.length+' integrantes</div>'
