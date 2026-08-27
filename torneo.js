@@ -518,6 +518,8 @@ function generateZones(){
     ?(cat?S.equipos.filter(function(e){return e.cat===cat;}):S.equipos)
     :(cat?S.players.filter(function(p){return p.cat===cat;}):S.players);
   if(!pool.length){salert('alert-zonas','No hay participantes','warn',3000);return;}
+    if(S.zones.length&&!confirm('Regenerar zonas borrara todos los partidos y reiniciara el ranking de este torneo. Continuar?'))return;
+  S.matches={};S.equipoMatches={};S.bracket={};S.rlBracket={};S.bracketScores={};
   var cats=cat?[cat]:[...new Set(pool.map(function(p){return p.cat;}))];
   S.zones=S.zones.filter(function(z){return!(z.mode===zm&&(cat?z.cat===cat:true));});
   cats.forEach(function(c){
@@ -1809,7 +1811,8 @@ function generateBracket(){
   var useSeeds=seedEl?!!seedEl.checked:false;
   var cz=S.zones.filter(function(z){return z.cat===cat;});
   if(!cz.length){document.getElementById('bracket-display').innerHTML='<div class="card"><div class="empty"><p>No hay zonas para esa categoria</p></div></div>';return;}
-
+  if(S.bracket[cat]&&!confirm('Regenerar la llave borrara los resultados de llave y reiniciara el ranking. Continuar?'))return;
+  S.bracketScores={};
   var totalEsperado=cz.length*cn;
   var bracketSize=Math.pow(2,Math.ceil(Math.log2(Math.max(totalEsperado,2))));
   var numByes=bracketSize-totalEsperado;
