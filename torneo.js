@@ -1812,7 +1812,14 @@ function generateBracket(){
   var cz=S.zones.filter(function(z){return z.cat===cat;});
   if(!cz.length){document.getElementById('bracket-display').innerHTML='<div class="card"><div class="empty"><p>No hay zonas para esa categoria</p></div></div>';return;}
   if(S.bracket[cat]&&!confirm('Regenerar la llave borrara los resultados de llave y reiniciara el ranking. Continuar?'))return;
-  S.bracketScores={};
+  // Borrar solo scores de llave, no de zona
+  var newBracketScores={};
+  Object.keys(S.bracketScores).forEach(function(k){
+    // Los keys de zona no contienen '|', los de llave sí
+    if(k.indexOf('|')===-1)newBracketScores[k]=S.bracketScores[k];
+  });
+  S.bracketScores=newBracketScores;
+  delete S.bracket[cat];
   var totalEsperado=cz.length*cn;
   var bracketSize=Math.pow(2,Math.ceil(Math.log2(Math.max(totalEsperado,2))));
   var numByes=bracketSize-totalEsperado;
@@ -2029,6 +2036,7 @@ function importData(e){
         toggleInscripcion();
       }
       updCatSels();renderPlayers();renderEquipos();renderZones();renderCats();
+      renderResults();renderRanking();
       renderCajaSingles();renderCajaEquipos();
       setFormat(S.config&&S.config.formato?S.config.formato:'clasico');
       updateSelects();updateMetrics();
