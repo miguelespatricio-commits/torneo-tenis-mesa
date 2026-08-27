@@ -9,7 +9,14 @@ let S = {
     {id:'cat5',nombre:'Femenino',color:'tag-coral'}
   ],
   mode:'singles',players:[],equipos:[],zones:[],
-  matches:{},equipoMatches:{},bracket:{},rlBracket:{},bracketScores:{}
+  matches:{},equipoMatches:{},bracket:{},rlBracket:{},bracketScores:{},
+  rankConfig:{
+    modo:'fijo',
+    zonaPts:5,
+    rondas:{campeon:100,finalista:70,semifinal:50,cuartos:35,octavos:20,ronda16:10,ronda32:5},
+    eloCats:[{id:'cat-elo-1',nombre:'Primera',umbral:1200},{id:'cat-elo-2',nombre:'Segunda',umbral:800},{id:'cat-elo-3',nombre:'Tercera',umbral:0}]
+  },
+  rankingHistorico:[]
 };
 const ZCOLS=['tag-blue','tag-teal','tag-amber','tag-coral','tag-purple','tag-green','tag-orange','tag-pink','tag-sky'];
 const ACOLS=['tag-blue','tag-teal','tag-amber','tag-coral','tag-purple','tag-green','tag-orange','tag-pink','tag-sky','tag-gray'];
@@ -42,6 +49,85 @@ function salert(id,msg,type,ms){
 }
 function fmtMoney(n){return n?'$'+parseFloat(n).toLocaleString('es-AR'):'';}
 
+// ═══════════════════ RANK CONFIG ═══════════════════
+function setRankMode(m){
+  S.rankConfig.modo=m;
+  document.getElementById('rank-mode-fijo').classList.toggle('active',m==='fijo');
+  document.getElementById('rank-mode-elo').classList.toggle('active',m==='elo');
+  document.getElementById('rank-config-fijo').style.display=m==='fijo'?'':'none';
+  document.getElementById('rank-config-elo').style.display=m==='elo'?'':'none';
+}
+function renderRankConfig(){
+  var rc=S.rankConfig;
+  document.getElementById('rank-mode-fijo').classList.toggle('active',rc.modo==='fijo');
+  document.getElementById('rank-mode-elo').classList.toggle('active',rc.modo==='elo');
+  document.getElementById('rank-config-fijo').style.display=rc.modo==='fijo'?'':'none';
+  document.getElementById('rank-config-elo').style.display=rc.modo==='elo'?'':'none';
+  // Rondas fijo
+  var rondas=[
+    {key:'campeon',label:'Campeon'},
+    {key:'finalista',label:'Finalista'},
+    {key:'semifinal',label:'Semifinalista'},
+    {key:'cuartos',label:'Cuartos de final'},
+    {key:'octavos',label:'Octavos de final'},
+    {key:'ronda16',label:'16avos de final'},
+    {key:'ronda32',label:'32avos de final'}
+  ];
+  var wrap=document.getElementById('rank-rondas-wrap');
+  if(wrap){
+    wrap.innerHTML=rondas.map(function(r){
+      return '<div class="form-row" style="margin-bottom:0;">'
+        +'<div class="form-group" style="max-width:200px;"><label>'+r.label+'</label>'
+        +'<input type="number" min="0" id="cfg-rank-'+r.key+'" value="'+(rc.rondas[r.key]||0)+'"/></div>'
+        +'</div>';
+    }).join('');
+  }
+  var zp=document.getElementById('cfg-rank-zona-pts');
+  if(zp)zp.value=rc.zonaPts||5;
+  // ELO cats
+  renderEloCats();
+}
+function renderEloCats(){
+  var wrap=document.getElementById('rank-elo-cats-wrap');if(!wrap)return;
+  var cats=S.rankConfig.eloCats||[];
+  wrap.innerHTML=cats.map(function(c,i){
+    return '<div style="display:flex;gap:8px;align-items:center;">'
+      +'<input type="text" value="'+c.nombre+'" placeholder="Nombre categoria" id="elo-cat-nombre-'+c.id+'" style="flex:1;"/>'
+      +'<div class="form-group" style="max-width:140px;margin:0;"><label style="font-size:10px;">Umbral minimo pts</label>'
+      +'<input type="number" min="0" value="'+c.umbral+'" id="elo-cat-umbral-'+c.id+'"/></div>'
+      +'<button class="btn btn-sm btn-danger" onclick="removeEloCategory(\''+c.id+'\')">&#x2715;</button>'
+      +'</div>';
+  }).join('');
+}
+function addEloCategory(){
+  S.rankConfig.eloCats=S.rankConfig.eloCats||[];
+  S.rankConfig.eloCats.push({id:uid(),nombre:'Nueva categoria',umbral:0});
+  renderEloCats();
+}
+function removeEloCategory(id){
+  S.rankConfig.eloCats=S.rankConfig.eloCats.filter(function(c){return c.id!==id;});
+  renderEloCats();
+}
+function saveRankConfig(){
+  var rc=S.rankConfig;
+  var rondas=[{key:'campeon'},{key:'finalista'},{key:'semifinal'},{key:'cuartos'},{key:'octavos'},{key:'ronda16'},{key:'ronda32'}];
+  rondas.forEach(function(r){
+    var el=document.getElementById('cfg-rank-'+r.key);
+    if(el)rc.rondas[r.key]=parseInt(el.value)||0;
+  });
+  var zp=document.getElementById('cfg-rank-zona-pts');
+  if(zp)rc.zonaPts=parseInt(zp.value)||0;
+  if(rc.modo==='elo'){
+    (rc.eloCats||[]).forEach(function(c){
+      var en=document.getElementById('elo-cat-nombre-'+c.id);
+      var eu=document.getElementById('elo-cat-umbral-'+c.id);
+      if(en)c.nombre=en.value.trim()||c.nombre;
+      if(eu)c.umbral=parseInt(eu.value)||0;
+    });
+    rc.eloCats.sort(function(a,b){return b.umbral-a.umbral;});
+  }
+  salert('alert-rank-config','&#x2705; Configuracion de ranking guardada','success',2000);
+}
 // ═══════════════════ FORMAT ═══════════════════
 function setFormat(f){
   S.config.formato=f;
@@ -67,7 +153,7 @@ function showTab(t,btn){
   if(t==='ranking')renderRanking();
   if(t==='zonas')renderZones();
   if(t==='equipos'){renderEquipos();renderCajaEquipos();}
-  if(t==='config'){renderCats();setFormat(S.config.formato);}
+  if(t==='config'){renderCats();setFormat(S.config.formato);renderRankConfig();}
   updateMetrics();updateSelects();
 }
 
@@ -1182,41 +1268,176 @@ function printBracketMatch(nameA,nameB,catLabel,roundLabel){
 // ═══════════════════ RANKING ═══════════════════
 function renderRanking(){
   var cf=document.getElementById('rank-cat-filter').value;
-  var zf=document.getElementById('rank-zone-filter').value;
   var w=document.getElementById('ranking-display');
-  var zones=S.zones;
-  if(cf)zones=zones.filter(function(z){return z.cat===cf;});
-  if(zf)zones=zones.filter(function(z){return z.id===zf;});
-  if(!zones.length){w.innerHTML='<div class="card"><div class="empty"><p>Sin zonas generadas</p></div></div>';return;}
-  var cats=[...new Set(zones.map(function(z){return z.cat;}))];
-  w.innerHTML=cats.map(function(cat){
-    var cz=zones.filter(function(z){return z.cat===cat;});
-    return '<div class="zone-section"><div class="zone-section-title"><span class="tag '+catCol(cat)+'">'+catNm(cat)+'</span></div>'
-      +'<div class="grid2">'+cz.map(function(z){
-        var st=getStandings(z);
-        var rows=st.map(function(s,i){
-          var medal=i===0?'&#x1F947;':i===1?'&#x1F948;':i===2?'&#x1F949;':'';
-          var pc=['pos-1','pos-2','pos-3'][i]||'';
-          var diff=s.pf-s.pc;var pdiff=(s.ppf||0)-(s.ppc||0);
-          return '<tr>'
-            +'<td><span class="pos-circle '+pc+'">'+(i+1)+'</span></td>'
-            +'<td>'+medal+' <strong>'+dn(s.player)+'</strong></td>'
-            +'<td style="text-align:center;font-weight:600;color:var(--accent);">'+s.pts+'</td>'
-            +'<td style="text-align:center;">'+s.pg+'</td>'
-            +'<td style="text-align:center;">'+s.pf+'</td>'
-            +'<td style="text-align:center;">'+s.pc+'</td>'
-            +'<td style="text-align:center;color:'+(diff>=0?'var(--success)':'var(--danger)')+';">'+(diff>=0?'+':'')+diff+'</td>'
-            +'<td style="text-align:center;font-size:11px;color:var(--text-muted);">'+(pdiff>=0?'+':'')+pdiff+'</td></tr>';
-        }).join('');
-        var mt=z.mode==='equipos'?'<span class="tag tag-orange" style="font-size:10px;">Equipos</span>':'';
-        return '<div class="card" style="margin:0;">'
-          +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">'
-          +'<span class="tag '+ZCOLS[z.num%ZCOLS.length]+'">Zona '+(z.num+1)+'</span>'+mt+'</div>'
-          +'<table><thead><tr><th>#</th><th>Participante</th><th>Pts</th><th>PG</th><th>SF</th><th>SC</th><th>Dif S.</th><th>Dif P.</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
-      }).join('')+'</div></div>';
-  }).join('');
+  var pts=calcRankingPts();
+  var todos=Object.values(pts);
+  if(cf)todos=todos.filter(function(x){return x.cat===cf;});
+  if(!todos.length){w.innerHTML='<div class="card"><div class="empty"><p>Sin datos de ranking. Completa partidos para ver el ranking.</p></div></div>';return;}
+  todos.sort(function(a,b){return b.pts-a.pts;});
+  // Agrupar por puesto compartido
+  var pos=1,rows='';
+  for(var i=0;i<todos.length;i++){
+    if(i>0&&todos[i].pts<todos[i-1].pts)pos=i+1;
+    var p=todos[i];
+    var medal=pos===1?'&#x1F947;':pos===2?'&#x1F948;':pos===3?'&#x1F949;':'';
+    var pc=['','pos-1','pos-2','pos-3'][pos]||'';
+    var origenTag=p.origen==='llave'
+      ?'<span class="tag tag-blue" style="font-size:10px;">Llave</span>'
+      :p.origen==='zona'
+        ?'<span class="tag tag-gray" style="font-size:10px;">Zona</span>'
+        :'';
+    rows+='<tr>'
+      +'<td><span class="pos-circle '+pc+'">'+(pc?pos:'')+'</span> '+medal+'</td>'
+      +'<td><strong>'+dn(p.player)+'</strong></td>'
+      +'<td><span class="tag '+catCol(p.cat)+'">'+catNm(p.cat)+'</span></td>'
+      +'<td>'+origenTag+'</td>'
+      +'<td style="text-align:right;font-weight:700;color:var(--accent);">'+p.pts+'</td>'
+      +'</tr>';
+  }
+  var modoTag=S.rankConfig.modo==='elo'
+    ?'<span class="tag tag-purple">ELO Dinamico</span>'
+    :'<span class="tag tag-blue">Fijo / Configurable</span>';
+  w.innerHTML='<div class="card">'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">'
+    +modoTag
+    +'<button class="btn btn-sm" onclick="cerrarRanking()">&#x1F4BE; Cerrar torneo y exportar ranking</button>'
+    +'</div>'
+    +'<table><thead><tr><th>#</th><th>Jugador</th><th>Categoria</th><th>Via</th><th style="text-align:right;">Puntos</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table>'
+    +'</div>';
 }
-
+function calcRankingPts(){
+  var rc=S.rankConfig;
+  var resultado={};
+  function getOrCreate(player,cat){
+    var k=player.id;
+    if(!resultado[k])resultado[k]={player:player,cat:cat,pts:0,origen:'zona'};
+    return resultado[k];
+  }
+  if(rc.modo==='fijo'){
+    var rondaKeys=['ronda32','ronda16','octavos','cuartos','semifinal','finalista','campeon'];
+    // Puntos de llave
+    S.categories.forEach(function(cat){
+      var b=S.bracket[cat.id];if(!b||!b.rounds||!b.rounds.length)return;
+      var nr=b.rounds.length;
+      b.rounds.forEach(function(round,ri){
+        round.forEach(function(match){
+          // El perdedor en esta ronda queda en esa ronda
+          var loser=null,loserPlayer=null;
+          if(match.winner===1&&match.p2.player){loserPlayer=match.p2.player;}
+          else if(match.winner===2&&match.p1.player){loserPlayer=match.p1.player;}
+          if(loserPlayer){
+            // ri=0 es primera ronda; ri=nr-1 es final
+            var rondaDesdeFinKey=nr-1-ri; // 0=final,1=semi,2=cuartos...
+            var key=rondaKeys[Math.min(rondaDesdeFinKey,rondaKeys.length-1)];
+            var puntos=rc.rondas[key]||0;
+            var entry=getOrCreate(loserPlayer,cat.id);
+            entry.pts=Math.max(entry.pts,puntos);
+            entry.origen='llave';
+          }
+          // Campeon
+          if(ri===nr-1){
+            var champ=match.winner===1?match.p1.player:match.winner===2?match.p2.player:null;
+            if(champ){
+              var entry=getOrCreate(champ,cat.id);
+              entry.pts=rc.rondas.campeon||100;
+              entry.origen='llave';
+            }
+          }
+        });
+      });
+    });
+    // Puntos de zona para quienes NO están en llave
+    var enLlave={};
+    Object.keys(resultado).forEach(function(k){if(resultado[k].origen==='llave')enLlave[k]=true;});
+    S.zones.forEach(function(z){
+      var setsToWin=parseInt(S.config.sets||2);
+      var ps=z.players.map(function(pid){return S.players.find(function(p){return p.id===pid;});}).filter(Boolean);
+      ps.forEach(function(p){
+        if(enLlave[p.id])return;
+        // Ver si ganó al menos un partido
+        var gano=ps.some(function(opp){
+          if(opp.id===p.id)return false;
+          var mv=S.matches[midKey(z.id,p.id,opp.id)];
+          if(!mv||!mv.sets)return false;
+          var res=matchResult(mv.sets,setsToWin);
+          return res.done&&((res.w1>=setsToWin&&[p.id].includes(p.id))||res.w2>=setsToWin);
+        });
+        if(gano){
+          var entry=getOrCreate(p,z.cat);
+          entry.pts=Math.max(entry.pts,rc.zonaPts||5);
+        }
+      });
+    });
+  } else {
+    // Modo ELO
+    var eloScores={};
+    S.players.forEach(function(p){
+      eloScores[p.id]=p.eloScore||1000;
+    });
+    var K=32;
+    function esperado(ra,rb){return 1/(1+Math.pow(10,(rb-ra)/400));}
+    // Partidos de zona
+    S.zones.forEach(function(z){
+      var setsToWin=parseInt(S.config.sets||2);
+      var ps=z.players.map(function(pid){return S.players.find(function(p){return p.id===pid;});}).filter(Boolean);
+      for(var i=0;i<ps.length;i++){for(var j=i+1;j<ps.length;j++){
+        var mv=S.matches[midKey(z.id,ps[i].id,ps[j].id)];
+        if(!mv||!mv.sets)continue;
+        var res=matchResult(mv.sets,setsToWin);if(!res.done)continue;
+        var ra=eloScores[ps[i].id],rb=eloScores[ps[j].id];
+        var ea=esperado(ra,rb),eb=esperado(rb,ra);
+        var sa=res.w1>=setsToWin?1:0,sb=1-sa;
+        eloScores[ps[i].id]=Math.round(ra+K*(sa-ea));
+        eloScores[ps[j].id]=Math.round(rb+K*(sb-eb));
+      }}
+    });
+    // Partidos de llave
+    S.categories.forEach(function(cat){
+      var b=S.bracket[cat.id];if(!b||!b.rounds)return;
+      var setsToWin=parseInt(S.config.sets||2);
+      b.rounds.forEach(function(round){
+        round.forEach(function(match){
+          if(!match.winner||match.auto)return;
+          var pa=match.p1.player,pb=match.p2.player;
+          if(!pa||!pb)return;
+          var ra=eloScores[pa.id]||1000,rb=eloScores[pb.id]||1000;
+          var ea=esperado(ra,rb),eb=esperado(rb,ra);
+          var sa=match.winner===1?1:0,sb=1-sa;
+          eloScores[pa.id]=Math.round(ra+K*(sa-ea));
+          eloScores[pb.id]=Math.round(rb+K*(sb-eb));
+        });
+      });
+    });
+    // Construir resultado
+    S.players.forEach(function(p){
+      var entry=getOrCreate(p,p.cat);
+      entry.pts=eloScores[p.id]||1000;
+      entry.origen='elo';
+    });
+  }
+  return resultado;
+}
+function cerrarRanking(){
+  if(!confirm('Cerrar el torneo y exportar el ranking? Esto actualizara el puntaje de todos los jugadores.'))return;
+  var pts=calcRankingPts();
+  // Actualizar eloScore en players
+  S.players.forEach(function(p){
+    if(pts[p.id])p.eloScore=pts[p.id].pts;
+    else if(!p.eloScore)p.eloScore=1000;
+  });
+  // Agregar al historial
+  var entrada={
+    torneo:S.config.nombre||'Torneo sin nombre',
+    fecha:S.config.fecha||'',
+    modo:S.rankConfig.modo,
+    resultados:Object.values(pts).map(function(x){return{pid:x.player.id,nombre:dn(x.player),pts:x.pts,cat:x.cat};})
+  };
+  S.rankingHistorico=S.rankingHistorico||[];
+  S.rankingHistorico.push(entrada);
+  exportData();
+  salert('alert-rank-config','&#x2705; Ranking exportado','success',3000);
+}
 // ═══════════════════ BRACKET ═══════════════════
 function bScoreKey(storeKey,ri,mi){return storeKey+'|'+ri+'|'+mi;}
 function getBracketSets(storeKey,ri,mi){return(S.bracketScores[bScoreKey(storeKey,ri,mi)]||{sets:[]}).sets;}
@@ -1788,6 +2009,8 @@ function importData(e){
     try{
       S=JSON.parse(ev.target.result);
       S.bracketScores=S.bracketScores||{};S.bracket=S.bracket||{};S.rlBracket=S.rlBracket||{};
+      S.rankConfig=S.rankConfig||{modo:'fijo',zonaPts:5,rondas:{campeon:100,finalista:70,semifinal:50,cuartos:35,octavos:20,ronda16:10,ronda32:5},eloCats:[]};
+      S.rankingHistorico=S.rankingHistorico||[];
       S.matches=S.matches||{};S.equipoMatches=S.equipoMatches||{};
       S.zones=S.zones||[];S.players=S.players||[];S.equipos=S.equipos||[];S.categories=S.categories||[];
       document.getElementById('header-torneo-name').textContent=S.config&&S.config.nombre?S.config.nombre:'';

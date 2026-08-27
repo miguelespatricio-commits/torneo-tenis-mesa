@@ -233,8 +233,6 @@ nav button{padding:9px 10px;font-size:12px}
   <div class="card">
     <div class="form-row" style="margin-bottom:0;align-items:center;">
       <div class="form-group" style="max-width:200px;"><label>Categoria</label><select id="rank-cat-filter" onchange="renderRanking()"><option value="">Todas</option></select></div>
-      <div class="form-group" style="max-width:220px;"><label>Zona</label><select id="rank-zone-filter" onchange="renderRanking()"><option value="">Todas</option></select></div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:14px;">Pts &middot; PG=ganados &middot; SF/SC=sets &middot; Dif P.=desempate</div>
     </div>
   </div>
   <div id="ranking-display"></div>
@@ -332,6 +330,40 @@ nav button{padding:9px 10px;font-size:12px}
     <div id="alert-cats"></div>
   </div>
   <div class="card" style="max-width:640px;">
+      <div class="card" style="max-width:640px;">
+    <h3>Ranking</h3>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Modalidad</div>
+        <div class="mode-tabs">
+          <button class="mode-tab active" id="rank-mode-fijo" onclick="setRankMode('fijo')">Fijo / Configurable</button>
+          <button class="mode-tab" id="rank-mode-elo" onclick="setRankMode('elo')">Dinamico (ELO)</button>
+        </div>
+      </div>
+      <div id="rank-config-fijo">
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Puntos por ronda en llave</div>
+        <div style="display:flex;flex-direction:column;gap:8px;" id="rank-rondas-wrap">
+          <!-- se genera por JS -->
+        </div>
+        <div style="margin-top:12px;">
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Puntos de zona (solo para quienes no avanzan a llave)</div>
+          <div class="form-row" style="margin-bottom:0;">
+            <div class="form-group" style="max-width:160px;"><label>Pts por victoria en zona</label><input id="cfg-rank-zona-pts" type="number" min="0" value="5"/></div>
+          </div>
+        </div>
+      </div>
+      <div id="rank-config-elo" style="display:none;">
+        <div class="alert alert-info">El sistema calcula automaticamente los puntos segun el resultado de cada partido y el nivel relativo de los rivales. Puntaje base: 1000 pts.</div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Nombres de categorias de ranking</div>
+        <div id="rank-elo-cats-wrap" style="display:flex;flex-direction:column;gap:8px;">
+          <!-- se genera por JS -->
+        </div>
+        <button class="btn btn-sm" style="margin-top:8px;" onclick="addEloCategory()">+ Agregar categoria</button>
+      </div>
+      <div><button class="btn btn-primary" onclick="saveRankConfig()">&#x1F4BE; Guardar configuracion de ranking</button></div>
+      <div id="alert-rank-config"></div>
+    </div>
+  </div>
     <h3>Datos</h3>
     <div class="form-row">
       <button class="btn" onclick="exportData()">&#x2B07; Exportar JSON</button>
