@@ -1902,7 +1902,7 @@ function renderBracket(cat){
   var b=S.bracket[cat];if(!b){if(w)w.innerHTML='';return;}
   var champ=getChamp(b.rounds);
   var infoTag=b.seeded?'<span class="tag tag-amber">&#x1F3C5; Con cabezas de serie</span>':'<span class="tag tag-blue">Sorteo libre</span>';
-  var meta='<span style="font-size:12px;color:var(--text-muted);">'+b.totalClasificados+' clasificados'+(b.byes?' &middot; '+b.byes+' bye'+(b.byes>1?'s':''):'')+'</span>';
+  var meta='<span style="font-size:12px;color:var(--text-muted);">'+b.totalClasificados+' clasificados &middot; '+b.cn+' por zona'+(b.byes?' &middot; '+b.byes+' bye'+(b.byes>1?'s':''):'')+'</span>';
   var warnHTML=b.pendientes?'<div class="alert alert-warn" style="margin-bottom:12px;">&#x26A0; '+b.pendientes+' zona'+(b.pendientes>1?'s':'')+' pendiente'+(b.pendientes>1?'s':'')+' de completar. Los slots se llenan automaticamente al terminar cada zona.</div>':'';
   if(w)w.innerHTML='<div class="card">'+warnHTML
     +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">'
