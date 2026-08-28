@@ -1411,7 +1411,7 @@ function calcRankingPts(){
     // Modo ELO
     var eloScores={};
     S.players.forEach(function(p){
-      eloScores[p.id]=p.eloScore||1000;
+      eloScores[p.id]=p.eloScore||getEloInicio();
     });
     var K=32;
     function esperado(ra,rb){return 1/(1+Math.pow(10,(rb-ra)/400));}
@@ -1439,7 +1439,7 @@ function calcRankingPts(){
           if(!match.winner||match.auto)return;
           var pa=match.p1.player,pb=match.p2.player;
           if(!pa||!pb)return;
-          var ra=eloScores[pa.id]||1000,rb=eloScores[pb.id]||1000;
+          var ra=eloScores[pa.id]||getEloInicio(),rb=eloScores[pb.id]||getEloInicio();
           var ea=esperado(ra,rb),eb=esperado(rb,ra);
           var sa=match.winner===1?1:0,sb=1-sa;
           eloScores[pa.id]=Math.round(ra+K*(sa-ea));
@@ -1447,23 +1447,25 @@ function calcRankingPts(){
         });
       });
     });
-    // Construir resultado
+    // Construir resultado con categoria segun puntaje ELO
     S.players.forEach(function(p){
-      var entry=getOrCreate(p,p.cat);
-      entry.pts=eloScores[p.id]||1000;
+      var ptsElo=eloScores[p.id]||getEloInicio();
+      var catElo=getCatEloByPts(ptsElo);
+      var entry=getOrCreate(p,catElo?catElo.id:p.cat);
+      entry.pts=ptsElo;
       entry.origen='elo';
+      entry.catElo=catElo?catElo.nombre:'';
     });
   }
-  return resultado;
-}
 function cerrarRanking(){
   if(!confirm('Cerrar el torneo y exportar el ranking? Esto actualizara el puntaje de todos los jugadores.'))return;
   var pts=calcRankingPts();
   // Actualizar eloScore en players
   S.players.forEach(function(p){
     if(pts[p.id])p.eloScore=pts[p.id].pts;
-    else if(!p.eloScore)p.eloScore=1000;
+    else if(!p.eloScore)p.eloScore=getEloInicio();
   });
+  if(S.rankConfig.modo==='elo')aplicarAscensoDescenso();
   // Agregar al historial
   var entrada={
     torneo:S.config.nombre||'Torneo sin nombre',
