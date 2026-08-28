@@ -1308,6 +1308,42 @@ function renderRanking(){
     +'<tbody>'+rows+'</tbody></table>'
     +'</div>';
 }
+// ═══════════════════ ELO UMBRALES ═══════════════════
+var ELO_UMBRALES=[1350,1200,1050,900,750,600,450,300,150,0];
+var ELO_INICIO=150;
+
+function getEloUmbral(posicion){
+  // posicion es 0-based, 0 = categoria mas alta
+  return ELO_UMBRALES[Math.min(posicion,ELO_UMBRALES.length-1)];
+}
+function getCatEloByPts(pts){
+  // Devuelve la categoria que corresponde segun puntaje
+  // S.categories[0] es la mas alta
+  for(var i=0;i<S.categories.length;i++){
+    if(pts>=getEloUmbral(i))return S.categories[i];
+  }
+  // Si cae por debajo de todas, devuelve la ultima (mas baja)
+  return S.categories[S.categories.length-1];
+}
+function getEloInicio(){
+  // Puntaje inicial: 150 pts, pero si la categoria que corresponde
+  // no existe en S.categories, usar el umbral de la categoria mas baja activa
+  if(!S.categories.length)return ELO_INICIO;
+  var catInicio=getCatEloByPts(ELO_INICIO);
+  if(catInicio)return ELO_INICIO;
+  // Categoria mas baja activa
+  var umbral=getEloUmbral(S.categories.length-1);
+  return umbral+10; // margen sobre el piso
+}
+function aplicarAscensoDescenso(){
+  // Actualiza la categoria de cada jugador segun su eloScore
+  if(S.rankConfig.modo!=='elo')return;
+  S.players.forEach(function(p){
+    var pts=p.eloScore||ELO_INICIO;
+    var cat=getCatEloByPts(pts);
+    if(cat)p.cat=cat.id;
+  });
+}
 function calcRankingPts(){
   var rc=S.rankConfig;
   var resultado={};
