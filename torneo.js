@@ -116,6 +116,10 @@ function removeEloCategory(id){
   S.rankConfig.eloCats=S.rankConfig.eloCats.filter(function(c){return c.id!==id;});
   renderEloCats();
 }
+function saveAllConfig() {
+  saveConfig();
+  saveRankConfig();
+}
 function saveRankConfig(){
   var rc=S.rankConfig;
   var rondas=[{key:'campeon'},{key:'finalista'},{key:'semifinal'},{key:'cuartos'},{key:'octavos'},{key:'ronda16'},{key:'ronda32'}];
