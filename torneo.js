@@ -2092,7 +2092,12 @@ function importData(e){
       renderCajaSingles();renderCajaEquipos();
       setFormat(S.config&&S.config.formato?S.config.formato:'clasico');
       updateSelects();updateMetrics();
-      Object.keys(S.bracket).forEach(function(cat){renderBracket(cat);});
+      var firstBracketCat=Object.keys(S.bracket)[0];
+      if(firstBracketCat){
+      var sel=document.getElementById('final-cat');
+      if(sel)sel.value=firstBracketCat;
+      renderBracket(firstBracketCat);
+}
       Object.keys(S.rlBracket).forEach(function(cat){renderRLBracket(cat);});
       alert('Datos importados correctamente');
     }catch(err){console.error(err);alert('Error al importar');}
