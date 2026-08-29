@@ -1467,8 +1467,9 @@ function calcRankingPts(){
       entry.pts=ptsElo;
       entry.origen='elo';
       entry.catElo=catElo?catElo.nombre:'';
-    });
+        });
   }
+  return resultado;
 }
 function cerrarRanking(){
   if(!confirm('Cerrar el torneo y exportar el ranking? Esto actualizara el puntaje de todos los jugadores.'))return;
