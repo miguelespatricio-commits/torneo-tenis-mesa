@@ -54,15 +54,19 @@ function setRankMode(m){
   S.rankConfig.modo=m;
   document.getElementById('rank-mode-fijo').classList.toggle('active',m==='fijo');
   document.getElementById('rank-mode-elo').classList.toggle('active',m==='elo');
+  document.getElementById('rank-mode-none').classList.toggle('active',m==='none');
   document.getElementById('rank-config-fijo').style.display=m==='fijo'?'':'none';
   document.getElementById('rank-config-elo').style.display=m==='elo'?'':'none';
+  document.getElementById('rank-config-none').style.display=m==='none'?'':'none';
 }
 function renderRankConfig(){
   var rc=S.rankConfig;
   document.getElementById('rank-mode-fijo').classList.toggle('active',rc.modo==='fijo');
   document.getElementById('rank-mode-elo').classList.toggle('active',rc.modo==='elo');
+  document.getElementById('rank-mode-none').classList.toggle('active',rc.modo==='none');
   document.getElementById('rank-config-fijo').style.display=rc.modo==='fijo'?'':'none';
   document.getElementById('rank-config-elo').style.display=rc.modo==='elo'?'':'none';
+  document.getElementById('rank-config-none').style.display=rc.modo==='none'?'':'none';
   // Rondas fijo
   var rondas=[
     {key:'campeon',label:'Campeon'},
@@ -84,7 +88,6 @@ function renderRankConfig(){
   }
   var zp=document.getElementById('cfg-rank-zona-pts');
   if(zp)zp.value=rc.zonaPts||5;
-  // ELO cats
   renderEloCats();
 }
 function renderEloCats(){
@@ -179,15 +182,15 @@ function addCategory(){
   if(S.categories.find(function(c){return c.nombre.toLowerCase()===n.toLowerCase();})){salert('alert-cats','Ya existe esa categoria','warn',3000);return;}
   S.categories.push({id:uid(),nombre:n,color:ACOLS[S.categories.length%ACOLS.length]});
   document.getElementById('new-cat-name').value='';
-  renderCats();updateSelects();updCatSels();
+  renderCats();updateSelects();updCatSels();renderEloCats();
 }
 function removeCategory(id){
   if(S.players.some(function(p){return p.cat===id;})||S.equipos.some(function(e){return e.cat===id;})){salert('alert-cats','Hay participantes en esa categoria','warn',3000);return;}
   S.categories=S.categories.filter(function(c){return c.id!==id;});
-  renderCats();updateSelects();updCatSels();
+  renderCats();updateSelects();updCatSels();renderEloCats();
 }
-function renCat(id,v){var c=catBy(id);if(c)c.nombre=v;updateSelects();updCatSels();renderPlayers();renderEquipos();renderZones();}
-function chgCatCol(id,col){var c=catBy(id);if(c)c.color=col;renderCats();renderPlayers();renderEquipos();}
+function renCat(id,v){var c=catBy(id);if(c)c.nombre=v;updateSelects();updCatSels();renderPlayers();renderEquipos();renderZones();renderEloCats();}
+function chgCatCol(id,col){var c=catBy(id);if(c)c.color=col;renderCats();renderPlayers();renderEquipos();renderEloCats();}
 function renderCats(){
   var w=document.getElementById('cats-list');if(!w)return;
   if(!S.categories.length){w.innerHTML='<p style="color:var(--text-muted)">Sin categorias.</p>';return;}
