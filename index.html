@@ -352,12 +352,14 @@ nav button{padding:9px 10px;font-size:12px}
           </div>
         </div>
       </div>
-      <div id="rank-config-elo" style="display:none;">
-        <div class="alert alert-info">El sistema calcula automaticamente los puntos segun el resultado de cada partido y el nivel relativo de los rivales. Puntaje base: 1000 pts.</div>
-        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Nombres de categorias de ranking</div>
-        <div id="rank-elo-cats-wrap" style="display:flex;flex-direction:column;gap:8px;">
+       <div id="rank-config-elo" style="display:none;">
+        <div class="alert alert-info">El sistema calcula automaticamente los puntos segun el resultado de cada partido y el nivel relativo de los rivales. Puntaje inicial para jugadores nuevos: 150 pts.</div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">Categorias y umbrales (orden de mayor a menor nivel)</div>
+        <div id="rank-elo-cats-wrap" style="display:flex;flex-direction:column;gap:6px;">
           <!-- se genera por JS -->
         </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Los umbrales son fijos y definidos por el sistema. El orden de las categorias en Config determina el nivel: la primera es la mas alta.</div>
+      </div>
         <button class="btn btn-sm" style="margin-top:8px;" onclick="addEloCategory()">+ Agregar categoria</button>
       </div>
       <div><button class="btn btn-primary" onclick="saveRankConfig()">&#x1F4BE; Guardar configuracion de ranking</button></div>

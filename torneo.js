@@ -89,13 +89,18 @@ function renderRankConfig(){
 }
 function renderEloCats(){
   var wrap=document.getElementById('rank-elo-cats-wrap');if(!wrap)return;
-  var cats=S.rankConfig.eloCats||[];
-  wrap.innerHTML=cats.map(function(c,i){
-    return '<div style="display:flex;gap:8px;align-items:center;">'
-      +'<input type="text" value="'+c.nombre+'" placeholder="Nombre categoria" id="elo-cat-nombre-'+c.id+'" style="flex:1;"/>'
-      +'<div class="form-group" style="max-width:140px;margin:0;"><label style="font-size:10px;">Umbral minimo pts</label>'
-      +'<input type="number" min="0" value="'+c.umbral+'" id="elo-cat-umbral-'+c.id+'"/></div>'
-      +'<button class="btn btn-sm btn-danger" onclick="removeEloCategory(\''+c.id+'\')">&#x2715;</button>'
+  if(!S.categories.length){
+    wrap.innerHTML='<div style="color:var(--text-muted);font-size:13px;">No hay categorias definidas. Agrega categorias en la seccion de arriba.</div>';
+    return;
+  }
+  wrap.innerHTML=S.categories.map(function(c,i){
+    var umbral=getEloUmbral(i);
+    var umbralSig=i>0?getEloUmbral(i-1)-1:null;
+    var rango=umbralSig!==null?umbral+' — '+umbralSig+' pts':'desde '+umbral+' pts';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border);">'
+      +'<span class="tag '+c.color+'">'+c.nombre+'</span>'
+      +'<span style="font-size:12px;color:var(--text-muted);">'+rango+'</span>'
+      +(i===S.categories.length-1?'<span style="font-size:11px;color:var(--text-muted);">(categoria mas baja &mdash; jugadores nuevos entran aqui)</span>':'')
       +'</div>';
   }).join('');
 }
