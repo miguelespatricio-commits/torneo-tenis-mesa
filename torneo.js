@@ -1861,31 +1861,6 @@ function showBracketForm(){
 function hideBracketForm(){
   document.getElementById('bracket-form-card').style.display='none';
 }
-function showRLForm(){
-  document.getElementById('rl-form-card').style.display='';
-}
-function hideRLForm(){
-  document.getElementById('rl-form-card').style.display='none';
-}
-function refreshRLTabs(activeCat){
-  var wrap=document.getElementById('rl-bracket-tabs');if(!wrap)return;
-  var cats=Object.keys(S.rlBracket);
-  if(!cats.length){wrap.innerHTML='<span style="font-size:12px;color:var(--text-muted);">Sin llaves generadas aun.</span>';return;}
-  wrap.innerHTML=cats.map(function(cid){
-    var c=catBy(cid);
-    var col=c?c.color:'tag-gray';
-    var isActive=cid===activeCat;
-    return '<div onclick="selectRLTab(\''+cid+'\')" style="display:flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;cursor:pointer;'
-      +(isActive?'border:2px solid currentColor;':'border:2px solid transparent;opacity:0.6;')
-      +'" class="'+col+'">'
-      +'<span style="font-size:12px;font-weight:'+(isActive?'600':'500')+';">'+catNm(cid)+'</span>'
-      +'</div>';
-  }).join('');
-}
-function selectRLTab(cat){
-  refreshRLTabs(cat);
-  renderRLBracket(cat);
-}
 function refreshBracketTabs(activeCat){
   var wrap=document.getElementById('bracket-tabs');if(!wrap)return;
   var cats=Object.keys(S.bracket);
@@ -2038,8 +2013,6 @@ function generateRelampago(){
   var fillPositions=priority.filter(function(p){return !byeSet[p];});
   fillPositions.forEach(function(p,idx){slots[p-1]=participants[idx];});
   S.rlBracket[cat]={rounds:buildRounds(slots),source:src};
-  hideRLForm();
-  refreshRLTabs(cat);
   renderRLBracket(cat);updateMetrics();
 }
 function renderRLBracket(cat){
@@ -2150,13 +2123,16 @@ function importData(e){
       renderCajaSingles();renderCajaEquipos();
       setFormat(S.config&&S.config.formato?S.config.formato:'clasico');
       updateSelects();updateMetrics();
-   var firstBracketCat=Object.keys(S.bracket)[0];
-      if(firstBracketCat){
-        refreshBracketTabs(firstBracketCat);
-        renderBracket(firstBracketCat);
-      }
-   var firstRLCat=Object.keys(S.rlBracket)[0];
-      if(firstRLCat){refreshRLTabs(firstRLCat);renderRLBracket(firstRLCat);}     
+      var firstBracketCat=Object.keys(S.bracket)[0];
+   if(firstBracketCat){
+      showBracketNav();
+      var sel=document.getElementById('bracket-cat-view');
+      var cats=Object.keys(S.bracket);
+      sel.innerHTML=cats.map(function(cid){return'<option value="'+cid+'">'+catNm(cid)+'</option>';}).join('');
+      sel.value=firstBracketCat;
+      renderBracket(firstBracketCat);
+    }
+      Object.keys(S.rlBracket).forEach(function(cat){renderRLBracket(cat);});
       alert('Datos importados correctamente');
     }catch(err){console.error(err);alert('Error al importar');}
   };r.readAsText(f);
