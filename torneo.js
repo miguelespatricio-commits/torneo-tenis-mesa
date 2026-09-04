@@ -1414,7 +1414,7 @@ function calcRankingPts(){
           return res.done&&((res.w1>=setsToWin&&[p.id].includes(p.id))||res.w2>=setsToWin);
         });
         if(gano){
-          var entry=getOrCreate(p,z.cat);
+          var catId=typeof z.cat==='object'?z.cat.id:z.cat;var entry=getOrCreate(p,catId);
           entry.pts=Math.max(entry.pts,rc.zonaPts||5);
         }
       });
@@ -1463,7 +1463,8 @@ function calcRankingPts(){
     S.players.forEach(function(p){
       var ptsElo=eloScores[p.id]||getEloInicio();
       var catElo=getCatEloByPts(ptsElo);
-      var entry=getOrCreate(p,catElo?catElo.id:p.cat);
+      var catId=catElo?catElo.id:(typeof p.cat==='object'?p.cat.id:p.cat);
+      var entry=getOrCreate(p,catId);
       entry.pts=ptsElo;
       entry.origen='elo';
       entry.catElo=catElo?catElo.nombre:'';
