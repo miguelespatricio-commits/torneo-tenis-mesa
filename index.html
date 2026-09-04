@@ -265,22 +265,31 @@ nav button{padding:9px 10px;font-size:12px}
   </div>
   <div id="bracket-display"></div>
 </div>
-  <div id="panel-relampago" style="display:none;">
-    <div class="format-banner relampago">&#x26A1; Relampago &mdash; Eliminacion directa. Sin zonas previas.</div>
-    <div class="card">
-      <h3>Gran llave relampago &#x26A1;</h3>
-      <div class="form-row">
-        <div class="form-group" style="max-width:200px;"><label>Categoria</label><select id="rl-cat"><option value="">Seleccionar...</option></select></div>
-        <div class="form-group" style="max-width:240px;"><label>Tipo</label>
-          <select id="rl-source"><option value="singles">Singles / Dobles</option><option value="equipos">Equipos</option></select></div>
-        <div class="form-group" style="max-width:200px;"><label>Siembra</label>
-          <select id="rl-seed"><option value="random">Aleatorio</option><option value="listed">Orden de carga</option></select></div>
-        <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-lightning" onclick="generateRelampago()">&#x26A1; Generar</button></div>
+<div id="panel-relampago" style="display:none;">
+  <div class="format-banner relampago">&#x26A1; Relampago &mdash; Eliminacion directa. Sin zonas previas.</div>
+  <div class="card" id="rl-nav-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <span style="font-size:13px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Llaves generadas</span>
+      <button class="btn btn-sm" onclick="showRLForm()">+ Nueva llave</button>
+    </div>
+    <div id="rl-bracket-tabs" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+  </div>
+  <div class="card" id="rl-form-card" style="display:none;">
+    <h3>Gran llave relampago &#x26A1;</h3>
+    <div class="form-row">
+      <div class="form-group" style="max-width:200px;"><label>Categoria</label><select id="rl-cat"><option value="">Seleccionar...</option></select></div>
+      <div class="form-group" style="max-width:240px;"><label>Tipo</label>
+        <select id="rl-source"><option value="singles">Singles / Dobles</option><option value="equipos">Equipos</option></select></div>
+      <div class="form-group" style="max-width:200px;"><label>Siembra</label>
+        <select id="rl-seed"><option value="random">Aleatorio</option><option value="listed">Orden de carga</option></select></div>
+      <div class="form-group" style="justify-content:flex-end;display:flex;gap:8px;">
+        <button class="btn" onclick="hideRLForm()">Cerrar</button>
+        <button class="btn btn-lightning" onclick="generateRelampago()">&#x26A1; Generar</button>
       </div>
     </div>
-    <div id="rl-bracket-display"></div>
   </div>
-</div>
+  <div id="rl-bracket-display"></div>
+</div>  
 
 <div class="section" id="tab-config">
   <div class="card" style="max-width:640px;">
