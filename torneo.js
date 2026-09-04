@@ -1857,16 +1857,28 @@ function zonaCompleta(z){
 }
 function showBracketForm(){
   document.getElementById('bracket-form-card').style.display='';
-  document.getElementById('bracket-nav-card').style.display='none';
 }
-function showBracketNav(){
+function hideBracketForm(){
   document.getElementById('bracket-form-card').style.display='none';
-  document.getElementById('bracket-nav-card').style.display='';
-  // Poblar select de llaves generadas
-  var sel=document.getElementById('bracket-cat-view');
+}
+function refreshBracketTabs(activeCat){
+  var wrap=document.getElementById('bracket-tabs');if(!wrap)return;
   var cats=Object.keys(S.bracket);
-  sel.innerHTML=cats.map(function(cid){return'<option value="'+cid+'">'+catNm(cid)+'</option>';}).join('');
-  if(cats.length)renderBracket(cats[0]);
+  if(!cats.length){wrap.innerHTML='<span style="font-size:12px;color:var(--text-muted);">Sin llaves generadas aun.</span>';return;}
+  wrap.innerHTML=cats.map(function(cid){
+    var c=catBy(cid);
+    var col=c?c.color:'tag-gray';
+    var isActive=cid===activeCat;
+    return '<div onclick="selectBracketTab(\''+cid+'\')" style="display:flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;cursor:pointer;'
+      +(isActive?'border:2px solid currentColor;':'border:2px solid transparent;')
+      +'" class="'+col+'">'
+      +'<span style="font-size:12px;font-weight:'+(isActive?'600':'500')+';">'+catNm(cid)+'</span>'
+      +'</div>';
+  }).join('');
+}
+function selectBracketTab(cat){
+  refreshBracketTabs(cat);
+  renderBracket(cat);
 }
 function generateBracket(){
   var cat=document.getElementById('final-cat').value;
@@ -1932,7 +1944,9 @@ var sel=document.getElementById('bracket-cat-view');
 var cats=Object.keys(S.bracket);
 sel.innerHTML=cats.map(function(cid){return'<option value="'+cid+'">'+catNm(cid)+'</option>';}).join('');
 sel.value=cat;
-renderBracket(cat);updateMetrics();
+  hideBracketForm();
+  refreshBracketTabs(cat);
+  renderBracket(cat);updateMetrics();
 }
 
 function autoUpdateBracket(cat){
