@@ -1939,7 +1939,7 @@ function generateBracket(){
     cn:cn,
     pendientes:pendientes
   };
-  showBracketNav();
+
 var sel=document.getElementById('bracket-cat-view');
 var cats=Object.keys(S.bracket);
 sel.innerHTML=cats.map(function(cid){return'<option value="'+cid+'">'+catNm(cid)+'</option>';}).join('');
