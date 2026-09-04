@@ -1870,7 +1870,7 @@ function refreshBracketTabs(activeCat){
     var col=c?c.color:'tag-gray';
     var isActive=cid===activeCat;
     return '<div onclick="selectBracketTab(\''+cid+'\')" style="display:flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;cursor:pointer;'
-      +(isActive?'border:2px solid currentColor;':'border:2px solid transparent;')
+      +(isActive?'border:2px solid currentColor;':'border:2px solid transparent;opacity:0.6;')
       +'" class="'+col+'">'
       +'<span style="font-size:12px;font-weight:'+(isActive?'600':'500')+';">'+catNm(cid)+'</span>'
       +'</div>';
@@ -1983,14 +1983,18 @@ function autoUpdateBracket(cat){
 }
 function renderBracket(cat){
   var w=document.getElementById('bracket-display');
+  if(!cat){if(w)w.innerHTML='';return;}
   var b=S.bracket[cat];if(!b){if(w)w.innerHTML='';return;}
   var champ=getChamp(b.rounds);
   var infoTag=b.seeded?'<span class="tag tag-amber">&#x1F3C5; Con cabezas de serie</span>':'<span class="tag tag-blue">Sorteo libre</span>';
+  var catObj=catBy(cat);
+  var catBadge=catObj?'<span class="tag '+catObj.color+'" style="font-size:14px;font-weight:600;padding:5px 14px;">'+catObj.nombre+'</span>':'';
   var meta='<span style="font-size:12px;color:var(--text-muted);">'+b.totalClasificados+' clasificados &middot; '+b.cn+' por zona'+(b.byes?' &middot; '+b.byes+' bye'+(b.byes>1?'s':''):'')+'</span>';
+  var editBtn='<button class="btn btn-sm" style="margin-left:auto;" onclick="showBracketForm()">Edit</button>';
   var warnHTML=b.pendientes?'<div class="alert alert-warn" style="margin-bottom:12px;">&#x26A0; '+b.pendientes+' zona'+(b.pendientes>1?'s':'')+' pendiente'+(b.pendientes>1?'s':'')+' de completar. Los slots se llenan automaticamente al terminar cada zona.</div>':'';
   if(w)w.innerHTML='<div class="card">'+warnHTML
     +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">'
-    +infoTag+meta+'</div>'
+    +catBadge+infoTag+meta+editBtn+'</div>'
     +makeBracketHTML(b.rounds,cat,false)+champBox(champ,false)+'</div>';
 }
 function generateRelampago(){
