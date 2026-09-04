@@ -1929,7 +1929,7 @@ function generateBracket(){
 
   var pendientes=cz.filter(function(z){return!zonaCompleta(z);}).length;
 
-  S.bracket[cat]={
+   S.bracket[cat]={
     rounds:buildRounds(slots),
     seeded:useSeeds,
     totalClasificados:totalEsperado,
@@ -1939,11 +1939,6 @@ function generateBracket(){
     cn:cn,
     pendientes:pendientes
   };
-
-var sel=document.getElementById('bracket-cat-view');
-var cats=Object.keys(S.bracket);
-sel.innerHTML=cats.map(function(cid){return'<option value="'+cid+'">'+catNm(cid)+'</option>';}).join('');
-sel.value=cat;
   hideBracketForm();
   refreshBracketTabs(cat);
   renderBracket(cat);updateMetrics();
