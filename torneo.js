@@ -1855,7 +1855,19 @@ function zonaCompleta(z){
   }}
   return true;
 }
-
+function showBracketForm(){
+  document.getElementById('bracket-form-card').style.display='';
+  document.getElementById('bracket-nav-card').style.display='none';
+}
+function showBracketNav(){
+  document.getElementById('bracket-form-card').style.display='none';
+  document.getElementById('bracket-nav-card').style.display='';
+  // Poblar select de llaves generadas
+  var sel=document.getElementById('bracket-cat-view');
+  var cats=Object.keys(S.bracket);
+  sel.innerHTML=cats.map(function(cid){return'<option value="'+cid+'">'+catNm(cid)+'</option>';}).join('');
+  if(cats.length)renderBracket(cats[0]);
+}
 function generateBracket(){
   var cat=document.getElementById('final-cat').value;
   if(!cat){alert('Selecciona una categoria');return;}
@@ -1915,7 +1927,12 @@ function generateBracket(){
     cn:cn,
     pendientes:pendientes
   };
-  renderBracket(cat);updateMetrics();
+  showBracketNav();
+var sel=document.getElementById('bracket-cat-view');
+var cats=Object.keys(S.bracket);
+sel.innerHTML=cats.map(function(cid){return'<option value="'+cid+'">'+catNm(cid)+'</option>';}).join('');
+sel.value=cat;
+renderBracket(cat);updateMetrics();
 }
 
 function autoUpdateBracket(cat){
@@ -2094,11 +2111,14 @@ function importData(e){
       setFormat(S.config&&S.config.formato?S.config.formato:'clasico');
       updateSelects();updateMetrics();
       var firstBracketCat=Object.keys(S.bracket)[0];
-      if(firstBracketCat){
-      var sel=document.getElementById('final-cat');
-      if(sel)sel.value=firstBracketCat;
+   if(firstBracketCat){
+      showBracketNav();
+      var sel=document.getElementById('bracket-cat-view');
+      var cats=Object.keys(S.bracket);
+      sel.innerHTML=cats.map(function(cid){return'<option value="'+cid+'">'+catNm(cid)+'</option>';}).join('');
+      sel.value=firstBracketCat;
       renderBracket(firstBracketCat);
-}
+    }
       Object.keys(S.rlBracket).forEach(function(cat){renderRLBracket(cat);});
       alert('Datos importados correctamente');
     }catch(err){console.error(err);alert('Error al importar');}

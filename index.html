@@ -240,22 +240,27 @@ nav button{padding:9px 10px;font-size:12px}
 
 <div class="section" id="tab-llaves">
   <div id="panel-clasico">
-    <div class="card">
-      <h3>Cuadro eliminatorio &mdash; Clasico</h3>
-      <div class="form-row">
-      <div class="form-group" style="max-width:200px;"><label>Categoria</label><select id="final-cat" onchange="renderBracket(this.value)"><option value="">Seleccionar...</option></select></div>       
-       <div class="form-group" style="max-width:200px;"><label>Clasificados por zona</label><input id="clasif-count" type="number" min="1" max="8" value="2"/></div>
-    <div class="form-group" style="justify-content:flex-end;">
-    <label style="display:flex;align-items:center;gap:6px;font-size:13px;">
-    <input type="checkbox" id="final-seeded"> Usar cabezas de serie (1&ordm; y 2&ordm; de cada zona)
-  </label>
-</div>
-        <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="generateBracket()">Generar llave</button></div>
+  <div class="card" id="bracket-form-card">
+    <h3>Cuadro eliminatorio &mdash; Clasico</h3>
+    <div class="form-row">
+      <div class="form-group" style="max-width:200px;"><label>Categoria</label><select id="final-cat"><option value="">Seleccionar...</option></select></div>
+      <div class="form-group" style="max-width:200px;"><label>Clasificados por zona</label><input id="clasif-count" type="number" min="1" max="8" value="2"/></div>
+      <div class="form-group" style="justify-content:flex-end;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;">
+          <input type="checkbox" id="final-seeded"> Usar cabezas de serie (1&ordm; y 2&ordm; de cada zona)
+        </label>
       </div>
-      <p style="font-size:12px;color:var(--text-muted);">Clic en &#x270F; para cargar resultado. Clic en nombre para marcar ganador.</p>
+      <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="generateBracket()">Generar llave</button></div>
     </div>
-    <div id="bracket-display"></div>
   </div>
+  <div class="card" id="bracket-nav-card" style="display:none;">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div class="form-group" style="max-width:220px;margin:0;"><label>Ver llave</label><select id="bracket-cat-view" onchange="renderBracket(this.value)"><option value="">Seleccionar...</option></select></div>
+      <div style="margin-top:18px;"><button class="btn btn-sm" onclick="showBracketForm()">&#x270F; Editar / Nueva llave</button></div>
+    </div>
+  </div>
+  <div id="bracket-display"></div>
+</div>
   <div id="panel-relampago" style="display:none;">
     <div class="format-banner relampago">&#x26A1; Relampago &mdash; Eliminacion directa. Sin zonas previas.</div>
     <div class="card">
