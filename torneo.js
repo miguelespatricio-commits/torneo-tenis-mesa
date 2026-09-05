@@ -2151,14 +2151,10 @@ function importData(e){
       setFormat(S.config&&S.config.formato?S.config.formato:'clasico');
       updateSelects();updateMetrics();
       var firstBracketCat=Object.keys(S.bracket)[0];
-   if(firstBracketCat){
-      showBracketNav();
-      var sel=document.getElementById('bracket-cat-view');
-      var cats=Object.keys(S.bracket);
-      sel.innerHTML=cats.map(function(cid){return'<option value="'+cid+'">'+catNm(cid)+'</option>';}).join('');
-      sel.value=firstBracketCat;
-      renderBracket(firstBracketCat);
-    }
+         if(firstBracketCat){
+        refreshBracketTabs(firstBracketCat);
+        renderBracket(firstBracketCat);
+      }
       var firstRLCat=Object.keys(S.rlBracket)[0];
       if(firstRLCat){refreshRLTabs(firstRLCat);renderRLBracket(firstRLCat);}
       alert('Datos importados correctamente');
