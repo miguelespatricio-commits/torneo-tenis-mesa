@@ -1,13 +1,7 @@
 // ═══════════════════ STATE ═══════════════════
 let S = {
   config:{nombre:'',fecha:'',sede:'',sets:2,formato:'clasico',inscripcion:false,monto:'','monto-dobles':'','monto-equipo':''},
-  categories:[
-    {id:'cat1',nombre:'Open',color:'tag-blue'},
-    {id:'cat2',nombre:'Sub-18',color:'tag-teal'},
-    {id:'cat3',nombre:'Sub-14',color:'tag-amber'},
-    {id:'cat4',nombre:'Veteranos',color:'tag-purple'},
-    {id:'cat5',nombre:'Femenino',color:'tag-coral'}
-  ],
+  categories:[],
   mode:'singles',players:[],equipos:[],zones:[],
   matches:{},equipoMatches:{},bracket:{},rlBracket:{},bracketScores:{},
   rankConfig:{
