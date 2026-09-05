@@ -677,6 +677,7 @@ function focusNextInput(matchId,setIdx){
 // ═══════════════════ ZONE MATCH RESULTS ═══════════════════
 function midKey(zid,a,b){return zid+'_'+[a,b].sort().join('_');}
 function saveSetScore(mid,si,field,val,inputEl){
+  if(val&&val.toString().length>2){val=val.toString().slice(0,2);if(inputEl)inputEl.value=val;}
   if(!S.matches[mid])S.matches[mid]={sets:[]};
   if(!S.matches[mid].sets)S.matches[mid].sets=[];
   while(S.matches[mid].sets.length<=si)S.matches[mid].sets.push({a:'',b:''});
@@ -888,6 +889,7 @@ function eqMatchResult(em){
   return{w1:w1,w2:w2,done:w1===2||w2===2};
 }
 function saveEqSetScore(mid,pi,si,field,val,inputEl){
+  if(val&&val.toString().length>2){val=val.toString().slice(0,2);if(inputEl)inputEl.value=val;}
   if(!S.equipoMatches[mid])S.equipoMatches[mid]={partidos:[]};
   var em=S.equipoMatches[mid];
   while(em.partidos.length<=pi)em.partidos.push({sets:[]});
@@ -1511,6 +1513,7 @@ function focusBracketField(inputEl, field){
   if(target){target.focus();target.select();}
 }
 function saveBracketSetScore(storeKey,ri,mi,si,field,val,inputEl){
+  if(val&&val.toString().length>2){val=val.toString().slice(0,2);if(inputEl)inputEl.value=val;}
   var k=bScoreKey(storeKey,ri,mi);
   if(!S.bracketScores[k])S.bracketScores[k]={sets:[]};
   while(S.bracketScores[k].sets.length<=si)S.bracketScores[k].sets.push({a:'',b:''});
