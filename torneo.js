@@ -524,11 +524,35 @@ function generateZones(){
     ?(cat?S.equipos.filter(function(e){return e.cat===cat;}):S.equipos)
     :(cat?S.players.filter(function(p){return p.cat===cat;}):S.players);
   if(!pool.length){salert('alert-zonas','No hay participantes','warn',3000);return;}
-    if(S.zones.length&&!confirm('Regenerar zonas borrara todos los partidos y reiniciara el ranking de este torneo. Continuar?'))return;
-  S.matches={};S.equipoMatches={};S.bracket={};S.rlBracket={};S.bracketScores={};
-  var cats=cat?[cat]:[...new Set(pool.map(function(p){return p.cat;}))];
+  var catsToRegen=cat?[cat]:[...new Set(pool.map(function(p){return p.cat;}))];
+  if(S.zones.length){
+    var msg=cat
+      ?'Regenerar zonas de esta categoria borrara sus partidos y llave. Continuar?'
+      :'Regenerar todas las zonas borrara todos los partidos y llaves. Continuar?';
+    if(!confirm(msg))return;
+  }
+  if(cat){
+    // Borrar solo matches, bracket y zonas de esta categoria
+    var zonasDeEstacat=S.zones.filter(function(z){return z.cat===cat&&z.mode===zm;});
+    zonasDeEstacat.forEach(function(z){
+      z.players.forEach(function(p1,i){
+        z.players.forEach(function(p2,j){
+          if(i>=j)return;
+          delete S.matches[midKey(z.id,p1,p2)];
+          delete S.equipoMatches[midKey(z.id,p1,p2)];
+        });
+      });
+    });
+    delete S.bracket[cat];
+    delete S.rlBracket[cat];
+    Object.keys(S.bracketScores).forEach(function(k){
+      if(k.startsWith(cat+'|'))delete S.bracketScores[k];
+    });
+  }else{
+    S.matches={};S.equipoMatches={};S.bracket={};S.rlBracket={};S.bracketScores={};
+  }
   S.zones=S.zones.filter(function(z){return!(z.mode===zm&&(cat?z.cat===cat:true));});
-  cats.forEach(function(c){
+  catsToRegen.forEach(function(c){
     var cp=[...(zm==='equipos'?S.equipos.filter(function(e){return e.cat===c;}):S.players.filter(function(p){return p.cat===c;}))].sort(function(){return Math.random()-.5;});
     var nz=Math.min(n,cp.length);
     var nzones=[];
