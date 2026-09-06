@@ -2202,44 +2202,87 @@ function resetAll(){
 
 // ═══════════════════ DEMO ═══════════════════
 function importDemo(){
-  var c1=S.categories[0]&&S.categories[0].id;
-  var c2=S.categories[1]&&S.categories[1].id;
-  var c5=S.categories[4]&&S.categories[4].id||c1;
-  var demos=[
-    {type:'singles',nombre:'Lucas',apellido:'Perez',club:'Club Atletico',cat:c1},
-    {type:'singles',nombre:'Sofia',apellido:'Gomez',club:'RC Palermo',cat:c1},
-    {type:'singles',nombre:'Mateo',apellido:'Rodriguez',club:'Union TM',cat:c1},
-    {type:'singles',nombre:'Valentina',apellido:'Lopez',club:'Club Atletico',cat:c1},
-    {type:'singles',nombre:'Nicolas',apellido:'Fernandez',club:'RC Palermo',cat:c1},
-    {type:'singles',nombre:'Camila',apellido:'Martinez',club:'Union TM',cat:c1},
-    {type:'singles',nombre:'Tomas',apellido:'Garcia',club:'Club Norte',cat:c2},
-    {type:'singles',nombre:'Santiago',apellido:'Diaz',club:'Club Sur',cat:c2},
-    {type:'singles',nombre:'Joaquin',apellido:'Mendez',club:'RC Palermo',cat:c2},
-    {type:'singles',nombre:'Leandro',apellido:'Blanco',club:'Independiente',cat:c2},
-    {type:'dobles',j1:'Sofia Gomez',j2:'Valentina Lopez',displayName:'Gomez / Lopez',club:'Club Atletico',cat:c5},
-    {type:'dobles',j1:'Camila Martinez',j2:'Isabella Torres',displayName:'Martinez / Torres',club:'RC Palermo',cat:c5}
+  // Categorias
+  var catIds={open:uid(),sub18:uid()};
+  S.categories=[
+    {id:catIds.open,nombre:'Open',color:'tag-blue'},
+    {id:catIds.sub18,nombre:'Sub-18',color:'tag-teal'}
   ];
-  demos.forEach(function(d){var obj=Object.assign({id:uid(),zona:false,pago:false},d);S.players.push(obj);});
-  var eqs=[
-    {nombre:'Club Atletico A',cat:c1,j:['Lucas Perez','Mateo Rodriguez','Nicolas Fernandez']},
-    {nombre:'RC Palermo A',cat:c1,j:['Diego Flores','Julian Mora','Emanuel Ruiz']},
-    {nombre:'Union TM A',cat:c1,j:['Ezequiel Ramos','Leandro Bueno','Gaston Rios']},
-    {nombre:'Independiente A',cat:c1,j:['Marcos Ponce','Sergio Luna','Damian Sosa']},
-    {nombre:'Club Atletico B',cat:c2,j:['Tomas Garcia','Santiago Diaz']},
-    {nombre:'RC Palermo B',cat:c2,j:['Joaquin Mendez','Leandro Blanco']},
-    {nombre:'Union TM B',cat:c2,j:['Bruno Acosta','Ignacio Vera']},
-    {nombre:'Club Norte B',cat:c2,j:['Martin Suarez','Franco Ibarra']},
-    {nombre:'Club Atletico V',cat:c5,j:['Roberto Paz','Carlos Medina','Alberto Ruiz']},
-    {nombre:'RC Palermo V',cat:c5,j:['Hector Molina','Oscar Benitez','Jorge Diaz']},
-    {nombre:'Union TM V',cat:c5,j:['Eduardo Gimenez','Ricardo Flores']},
-    {nombre:'Independiente V',cat:c5,j:['Miguel Torres','Raul Pereyra']}
-  ];
-  eqs.forEach(function(eq){
-    S.equipos.push({id:uid(),type:'equipo',nombre:eq.nombre,cat:eq.cat,zona:false,pago:false,
-      jugadores:eq.j.map(function(n){return{id:uid(),nombre:n};})});
-  });
-  renderPlayers();renderEquipos();renderCajaSingles();renderCajaEquipos();updateSelects();updateMetrics();
-  alert('Demo cargado: 12 jugadores/parejas y 12 equipos');
+  renderCats();updateSelects();updCatSels();renderEloCats();
+
+  // Jugadores Open
+  var pOpen=[
+    {nombre:'Lucas',apellido:'Perez',club:'Club Atletico'},
+    {nombre:'Sofia',apellido:'Gomez',club:'RC Palermo'},
+    {nombre:'Mateo',apellido:'Rodriguez',club:'Union TM'},
+    {nombre:'Valentina',apellido:'Lopez',club:'Club Atletico'},
+    {nombre:'Nicolas',apellido:'Fernandez',club:'RC Palermo'},
+    {nombre:'Camila',apellido:'Martinez',club:'Union TM'}
+  ].map(function(d){return Object.assign({id:uid(),type:'singles',cat:catIds.open,zona:false,pago:false},d);});
+
+  // Jugadores Sub-18
+  var pSub=[
+    {nombre:'Tomas',apellido:'Garcia',club:'Club Norte'},
+    {nombre:'Santiago',apellido:'Diaz',club:'Club Sur'},
+    {nombre:'Joaquin',apellido:'Mendez',club:'RC Palermo'},
+    {nombre:'Leandro',apellido:'Blanco',club:'Independiente'}
+  ].map(function(d){return Object.assign({id:uid(),type:'singles',cat:catIds.sub18,zona:false,pago:false},d);});
+
+  S.players=pOpen.concat(pSub);
+
+  // Zonas Open: 2 zonas de 3
+  var z1={id:uid(),num:0,cat:catIds.open,mode:'singles',players:[pOpen[0].id,pOpen[1].id,pOpen[2].id]};
+  var z2={id:uid(),num:1,cat:catIds.open,mode:'singles',players:[pOpen[3].id,pOpen[4].id,pOpen[5].id]};
+  // Zonas Sub-18: 1 zona de 4
+  var z3={id:uid(),num:0,cat:catIds.sub18,mode:'singles',players:[pSub[0].id,pSub[1].id,pSub[2].id,pSub[3].id]};
+  S.zones=[z1,z2,z3];
+  pOpen.concat(pSub).forEach(function(p){p.zona=true;});
+
+  var stw=parseInt(S.config.sets||2);
+  function sets(a,b){
+    // genera sets para partido con resultado a sets ganados vs b sets ganados
+    var result=[];
+    var wins1=0,wins2=0;
+    while(wins1<a&&wins2<b){result.push({a:'11',b:'8'});wins1++;}
+    while(wins2<b-wins2&&wins1<a){result.push({a:'8',b:'11'});wins2++;}
+    // simplificado: alternamos hasta llegar al resultado
+    result=[];
+    var total=a+b;
+    for(var i=0;i<total;i++){
+      if(i<a)result.push({a:'11',b:'8'});
+      else result.push({a:'8',b:'11'});
+    }
+    return result;
+  }
+  function addMatch(zid,p1,p2,s1,s2){
+    var k=midKey(zid,p1.id,p2.id);
+    var sv=[];
+    for(var i=0;i<s1;i++)sv.push({a:'11',b:'8'});
+    for(var i=0;i<s2;i++)sv.push({a:'8',b:'11'});
+    S.matches[k]={sets:sv};
+  }
+
+  // Resultados zona 1 Open (3 jugadores, round robin)
+  addMatch(z1.id,pOpen[0],pOpen[1],stw,0); // Lucas gana
+  addMatch(z1.id,pOpen[0],pOpen[2],stw,1); // Lucas gana
+  addMatch(z1.id,pOpen[1],pOpen[2],stw,0); // Sofia gana
+
+  // Resultados zona 2 Open
+  addMatch(z2.id,pOpen[3],pOpen[4],0,stw); // Nicolas gana
+  addMatch(z2.id,pOpen[3],pOpen[5],1,stw); // Camila gana
+  addMatch(z2.id,pOpen[4],pOpen[5],stw,0); // Nicolas gana
+
+  // Resultados zona Sub-18 (4 jugadores, round robin completo)
+  addMatch(z3.id,pSub[0],pSub[1],stw,0); // Tomas gana
+  addMatch(z3.id,pSub[0],pSub[2],stw,1); // Tomas gana
+  addMatch(z3.id,pSub[0],pSub[3],stw,0); // Tomas gana
+  addMatch(z3.id,pSub[1],pSub[2],0,stw); // Joaquin gana
+  addMatch(z3.id,pSub[1],pSub[3],stw,1); // Santiago gana
+  addMatch(z3.id,pSub[2],pSub[3],stw,0); // Joaquin gana
+
+  renderPlayers();renderEquipos();renderZones();renderResults();renderRanking();
+  renderCajaSingles();renderCajaEquipos();updateSelects();updateMetrics();
+  alert('Demo cargado: 2 categorias, 10 jugadores, zonas y resultados completos.');
 }
 
 // ═══════════════════ INIT ═══════════════════
