@@ -525,7 +525,10 @@ function generateZones(){
     :(cat?S.players.filter(function(p){return p.cat===cat;}):S.players);
   if(!pool.length){salert('alert-zonas','No hay participantes','warn',3000);return;}
   var catsToRegen=cat?[cat]:[...new Set(pool.map(function(p){return p.cat;}))];
-  if(S.zones.length){
+    var zonasExistentes=cat
+    ?S.zones.filter(function(z){return z.cat===cat&&z.mode===zm;})
+    :S.zones.filter(function(z){return z.mode===zm;});
+  if(zonasExistentes.length){
     var msg=cat
       ?'Regenerar zonas de esta categoria borrara sus partidos y llave. Continuar?'
       :'Regenerar todas las zonas borrara todos los partidos y llaves. Continuar?';
@@ -566,7 +569,7 @@ function generateZones(){
 function renderZones(){
   var w=document.getElementById('zones-display');
   if(!S.zones.length){w.innerHTML='<div class="card"><div class="empty"><div class="empty-icon">&#x1F532;</div><p>Genera las zonas</p></div></div>';return;}
-  var cats=[...new Set(S.zones.map(function(z){return z.cat;}))];
+  var cats=S.categories.filter(function(c){return S.zones.some(function(z){return z.cat===c.id;});}).map(function(c){return c.id;});
   w.innerHTML=cats.map(function(cat){
     var cz=S.zones.filter(function(z){return z.cat===cat;});
     return '<div class="zone-section">'
