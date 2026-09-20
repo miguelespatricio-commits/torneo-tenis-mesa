@@ -268,6 +268,10 @@ function editPlayer(id){
     +'<button type="button" class="btn btn-primary" onclick="saveEditPlayer(\''+id+'\')">Guardar</button>'
     +'</div></div></div>';
   document.body.insertAdjacentHTML('beforeend',modal);
+  setTimeout(function(){
+    var first=document.querySelector('#edit-modal input[type=text]');
+    if(first)first.focus();
+  },50);
 }
 function saveEditPlayer(id){
   var p=S.players.find(function(x){return x.id===id;});if(!p)return;
@@ -394,6 +398,10 @@ function editEquipo(id){
     +'<button class="btn btn-primary" onclick="saveEditEquipo(\''+id+'\')">Guardar</button>'
     +'</div></div></div>';
   document.body.insertAdjacentHTML('beforeend',modal);
+  setTimeout(function(){
+    var first=document.querySelector('#edit-modal input[type=text]');
+    if(first)first.focus();
+  },50);
 }
 function saveEditEquipo(id){
   var eq=S.equipos.find(function(e){return e.id===id;});if(!eq)return;
