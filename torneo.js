@@ -255,8 +255,8 @@ function editPlayer(id){
      +'<div class="form-group"><label>Nombre pareja</label><input id="edit-dn" type="text" value="'+(p.displayName||'')+'" onkeydown="if(event.key===\'Enter\'){event.preventDefault();saveEditPlayer(\''+id+'\');}"/></div>'
     :'<div class="form-group"><label>Nombre</label><input id="edit-nombre" type="text" value="'+(p.nombre||'')+'" onkeydown="if(event.key===\'Enter\'){event.preventDefault();saveEditPlayer(\''+id+'\');}"/></div>'
      +'<div class="form-group"><label>Apellido</label><input id="edit-apellido" type="text" value="'+(p.apellido||'')+'" onkeydown="if(event.key===\'Enter\'){event.preventDefault();saveEditPlayer(\''+id+'\');}"/></div>';
-  var modal='<div id="edit-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;">'
-    +'<div style="background:var(--surface);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
+  var modal='<div id="edit-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;" onkeydown="event.stopPropagation()">'
+    +'<div style="background:var(--surface);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2);" onclick="event.stopPropagation()">'
     +'<h3 style="margin-bottom:16px;">Editar '+(p.type==='dobles'?'pareja':'jugador')+'</h3>'
     +'<div style="display:flex;flex-direction:column;gap:12px;">'
     +fields
@@ -367,8 +367,8 @@ function toggleEqPago(eqId){
 function editEquipo(id){
   var eq=S.equipos.find(function(e){return e.id===id;});if(!eq)return;
   var catOpts=S.categories.map(function(c){return'<option value="'+c.id+'"'+(c.id===eq.cat?' selected':'')+'>'+c.nombre+'</option>';}).join('');
-  var modal='<div id="edit-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;">'
-    +'<div style="background:var(--surface);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
+  var modal='<div id="edit-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;" onkeydown="event.stopPropagation()">'
+    +'<div style="background:var(--surface);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.2);" onclick="event.stopPropagation()">'
     +'<h3 style="margin-bottom:16px;">Editar equipo</h3>'
     +'<div style="display:flex;flex-direction:column;gap:12px;">'
     +'<div class="form-group"><label>Nombre del equipo</label><input id="edit-eq-nombre" type="text" value="'+eq.nombre+'"/></div>'
