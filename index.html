@@ -138,9 +138,9 @@ nav button{padding:9px 10px;font-size:12px}
   <div class="card" id="form-singles">
     <h3>Agregar jugador</h3>
     <div class="form-row">
-      <div class="form-group"><label>Nombre *</label><input id="inp-nombre" type="text" placeholder="Nombre"/></div>
-      <div class="form-group"><label>Apellido</label><input id="inp-apellido" type="text" placeholder="Apellido"/></div>
-      <div class="form-group"><label>Club</label><input id="inp-club" type="text" placeholder="Club"/></div>
+      <div class="form-group"><label>Nombre *</label><input id="inp-nombre" type="text" placeholder="Nombre" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('inp-apellido').focus();}"/></div>
+      <div class="form-group"><label>Apellido</label><input id="inp-apellido" type="text" placeholder="Apellido" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('inp-club').focus();}"/></div>
+      <div class="form-group"><label>Club</label><input id="inp-club" type="text" placeholder="Club" onkeydown="if(event.key==='Enter'){event.preventDefault();addPlayer();}"/></div>
       <div class="form-group"><label>Categoria</label><select id="inp-cat"></select></div>
       <div class="form-group" id="inp-pago-wrap" style="display:none;max-width:110px;">
         <label>Inscripcion</label>
@@ -304,9 +304,9 @@ nav button{padding:9px 10px;font-size:12px}
   <div class="card" style="max-width:640px;">
     <h3>Datos generales</h3>
     <div style="display:flex;flex-direction:column;gap:14px;">
-      <div class="form-group"><label>Nombre del torneo</label><input id="cfg-nombre" type="text" placeholder="Copa Primavera 2025"/></div>
-      <div class="form-group"><label>Fecha</label><input id="cfg-fecha" type="date"/></div>
-      <div class="form-group"><label>Sede</label><input id="cfg-sede" type="text" placeholder="Club o institucion"/></div>
+      <div class="form-group"><label>Nombre del torneo</label><input id="cfg-nombre" type="text" placeholder="Copa Primavera 2025" onkeydown="if(event.key==='Enter'){event.preventDefault();saveAllConfig();}"/></div>
+      <div class="form-group"><label>Fecha</label><input id="cfg-fecha" type="date" onkeydown="if(event.key==='Enter'){event.preventDefault();saveAllConfig();}"/></div>
+      <div class="form-group"><label>Sede</label><input id="cfg-sede" type="text" placeholder="Club o institucion" onkeydown="if(event.key==='Enter'){event.preventDefault();saveAllConfig();}"/></div>
       <div class="form-group"><label>Sets por partido</label>
         <select id="cfg-sets">
           <option value="2">Mejor de 3 (ganar 2 sets)</option>
