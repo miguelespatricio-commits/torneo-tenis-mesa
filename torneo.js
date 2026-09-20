@@ -264,8 +264,8 @@ function editPlayer(id){
     +'<div class="form-group"><label>Categoria</label><select id="edit-cat">'+catOpts+'</select></div>'
     +'</div>'
     +'<div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">'
-    +'<button class="btn" onclick="closeEditModal()">Cancelar</button>'
-    +'<button class="btn btn-primary" onclick="saveEditPlayer(\''+id+'\')">Guardar</button>'
+    +'<button type="button" class="btn" onclick="closeEditModal()">Cancelar</button>'
+    +'<button type="button" class="btn btn-primary" onclick="saveEditPlayer(\''+id+'\')">Guardar</button>'
     +'</div></div></div>';
   document.body.insertAdjacentHTML('beforeend',modal);
 }
